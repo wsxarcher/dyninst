@@ -36,8 +36,7 @@ set(_sources
     src/InstructionDecoderImpl.C
     src/x86/decoder.C
     src/x86/mnemonic-xlat.C
-    src/x86/register-xlat.C
-    )
+    src/x86/register-xlat.C)
 
 set(_public_headers
     h/ArchSpecificFormatters.h
@@ -67,8 +66,7 @@ set(_private_headers
     src/InstructionDecoder-power.h
     src/x86/decoder.h
     src/x86/mnemonic-xlat.h
-    src/x86/register-xlat.h
-    )
+    src/x86/register-xlat.h)
 
 set(instructionDecoderPowerExtraFlags "")
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
