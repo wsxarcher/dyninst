@@ -73,7 +73,9 @@ extern double DYNINSTstaticHeap_16M_anyHeap_1[];
 extern unsigned long sizeOfLowMemHeap1;
 extern unsigned long sizeOfAnyHeap1;
 
+#if defined(cap_mutatee_traps)
 static struct trap_mapping_header *getStaticTrapMap(unsigned long addr);
+#endif
 
 #if defined(arch_power) && defined(arch_64bit) && defined(os_linux)
 unsigned long DYNINSTlinkSave;
@@ -319,11 +321,45 @@ int DYNINST_am_initial_thread( dyntid_t tid ) {
 
 #if defined(cap_mutatee_traps)
 
+#if defined(arch_amdgpu)
+/* The saved state of a stopped GPU process
+
+   At the moment, this is just a placeholder
+   which NEEDS to have a PC that can be
+   saved restored, so that existing code
+   works.
+
+   Making a real one, which the entire GPU state
+   (or finding the appropriate AMD structure)
+   is a task for the future.
+
+   FOr now, this allows compilation of things
+   Dyninst ish when there is an amdgpu target.
+
+   As we don't differentiate architectures in
+   Dyninst, well best we can do at the moment.
+*/
+
+struct amdgpu_user_context {
+	/* It's really two 32 bit registers, just make
+	it easy as it is never used */
+	unsigned long long	amdgpu_uc_pc;
+};
+/* This will undoubtely conflict with something, and ucontext_t
+   will need to be changed.  Egads the fallout. */
+typedef struct amdgpu_user_context ucontext_t;
+#define UC_PC(x) x->amdgpu_uc_pc
+#else
 #include <ucontext.h>
+#endif
 
 // Register numbers experimentally verified
 
-#if defined(arch_x86)
+#if defined(arch_amdgpu)
+	/* XXX OK, I need to make my own context, which
+	reflects the saved CPU state of stopped GPU. */
+
+#elif defined(arch_x86)
   #define UC_PC(x) x->uc_mcontext.gregs[14]
 #elif defined(arch_x86_64)
   #if defined(MUTATEE_32)

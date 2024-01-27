@@ -11964,11 +11964,15 @@ entryID ia32_entry::getID(ia32_locations* l) const
    return id;
 }
 
+/* XXXX these should likely be methodolgies that are used
+   by the compiler specific isms. */
+
 bool isStackFramePrecheck_gcc( const unsigned char *buffer )
 {
+   /* 16 wide x 16 deep == 256, 0x55 set */
    //Currently enabled entry bytes for gaps:
    //  0x55 - push %ebp
-   static char gap_initial_bytes[] =
+   static const char gap_initial_bytes[] =
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -11990,9 +11994,10 @@ bool isStackFramePrecheck_gcc( const unsigned char *buffer )
 
 bool isStackFramePrecheck_msvs( const unsigned char *buffer )
 {
+   /* 16 wide x 16 deep == 256, 0x55 set */
    //Currently enabled entry bytes for gaps:
    //  0x55 - push %ebp
-   static char gap_initial_bytes[] =
+   static const char gap_initial_bytes[] =
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

@@ -278,6 +278,7 @@ void PCProcess::inferiorMallocConstraints(Address near, Address &lo, Address &hi
         inferiorHeapType /* type */ )
 {
     if(near) {
+/* XXX egads */
 #if !defined(arch_x86_64) && !defined(arch_power)
         lo = region_lo(near);
         hi = region_hi(near);

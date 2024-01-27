@@ -208,7 +208,20 @@ if(cap_stack_mods_found GREATER -1)
     src/StackMod/TMap.C)
 endif()
 
-if(DYNINST_ARCH_i386 OR DYNINST_ARCH_x86_64)
+if(DYNINST_ARCH_amdgpu)
+  list(
+    APPEND
+    _sources
+    src/inst-amdgpu.C
+    src/emit-amdgpu.C
+    src/codegen-amdgpu.C
+#    src/parse-amdgpu.C
+#    src/RegisterConversion-amdgpu.C
+#    src/stackwalk-amdgpu.C
+#    src/Relocation/Widgets/CFWidget-amdgpu.C
+#    src/Relocation/Widgets/PCWidget-amdgpu.C
+    )
+elseif(DYNINST_ARCH_i386 OR DYNINST_ARCH_x86_64)
   list(
     APPEND
     _sources

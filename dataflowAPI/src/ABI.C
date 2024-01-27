@@ -668,3 +668,107 @@ void ABI::initialize64(){
 	allRegs64_ = &getBitArray(sz)->set();
 }
 #endif
+
+//#warning "This is not verified!"
+#if defined(arch_amdgpu)
+void ABI::initialize64(){
+
+#if 1
+	fprintf(stderr, "ABI::initialize64 amdgpu not implemented yet\n");
+#else
+    RegisterMap amdgpuMap = machRegIndex_amdgpu();
+	int sz = amdgpu.size();
+	returnRegs64_ = getBitArray(sz);
+    (*returnRegs64_)[amdgpuMap[aarch64::x0]] = true;
+    (*returnRegs64_)[amdgpuMap[aarch64::q0]] = true;
+
+	returnRead64_ = getBitArray(sz);
+    (*returnRead64_)[amdgpuMap[aarch64::x0]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q0]] = true;
+    //Callee-saved registers
+    //First, GPRs...
+    (*returnRead64_)[amdgpuMap[aarch64::x19]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x20]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x21]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x22]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x23]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x24]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x25]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x26]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x27]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::x28]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::sp]] = true;
+    //Now, SIMD regs...
+    (*returnRead64_)[amdgpuMap[aarch64::q8]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q9]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q10]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q11]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q12]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q13]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q14]] = true;
+    (*returnRead64_)[amdgpuMap[aarch64::q15]] = true;
+
+    callParam64_ = getBitArray(sz);
+    (*callParam64_)[amdgpuMap[aarch64::x0]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x1]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x2]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x3]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x4]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x5]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x6]] = true;
+    (*callParam64_)[amdgpuMap[aarch64::x7]] = true;
+
+	callRead64_ = getBitArray(sz);
+	//First, GPRs...
+	(*callRead64_)[amdgpuMap[aarch64::x0]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x1]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x2]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x3]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x4]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x5]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x6]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::x7]] = true;
+	//Now, SIMD regs...
+	(*callRead64_)[amdgpuMap[aarch64::q0]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q1]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q2]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q3]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q4]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q5]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q6]] = true;
+	(*callRead64_)[amdgpuMap[aarch64::q7]] = true;
+
+	callWritten64_ = callRead64_;
+	//First, GPRs...
+	(*callWritten64_)[amdgpuMap[aarch64::x9]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x10]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x11]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x12]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x13]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x14]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::x15]] = true;
+	//Now, SIMD regs...
+	(*callWritten64_)[amdgpuMap[aarch64::q16]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q17]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q18]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q19]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q20]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q21]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q22]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q23]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q24]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q25]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q26]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q27]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q28]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q29]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q30]] = true;
+	(*callWritten64_)[amdgpuMap[aarch64::q31]] = true;
+
+	syscallRead64_ = &getBitArray(sz)->set();
+	syscallWritten64_ = &getBitArray(sz)->set();
+
+	allRegs64_ = &getBitArray(sz)->set();
+#endif
+}
+#endif
