@@ -780,7 +780,11 @@ void BinaryEdit::makeInitAndFiniIfNeeded()
 
     // Disable this for .o's and static binaries
     if( linkedFile->isStaticBinary() || 
-        linkedFile->getObjectType() == obj_RelocatableFile ) 
+        linkedFile->getObjectType() == obj_RelocatableFile ||
+        linkedFile->getArchitecture() == Arch_amdgpu_gfx908 ||
+        linkedFile->getArchitecture() == Arch_amdgpu_gfx90a ||
+        linkedFile->getArchitecture() == Arch_amdgpu_gfx940
+        ) 
     {
         return;
     }
