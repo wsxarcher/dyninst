@@ -67,6 +67,61 @@ bool CFWidget::generateIndirectCall(CodeBuffer &buffer,
 }
 
 bool CFPatch::apply(codeGen &gen, CodeBuffer *buf) {
+   // Otherwise this is a classic, and therefore easy.
+   int targetLabel = target->label(buf);
+
+   relocation_cerr << "\t\t CFPatch::apply, type " << type << ", origAddr " << hex << origAddr_
+                   << ", and label " << dec << targetLabel << endl;
+   if (orig_insn.isValid()) {
+      relocation_cerr << "\t\t\t Currently at " << hex << gen.currAddr() << " and targeting predicted " << buf->predictedAddr(targetLabel) << dec << endl;
+      switch(type) {
+         case CFPatch::Jump: {
+            relocation_cerr << "\t\t\t Generating CFPatch::Jump from "
+                            << hex << gen.currAddr() << " to " << buf->predictedAddr(targetLabel) << dec << endl;
+            if (!insnCodeGen::modifyJump(buf->predictedAddr(targetLabel), *ugly_insn, gen)) {
+               cerr << "Failed to modify jump" << endl;
+               return false;
+            }
+            return true;
+         }
+         case CFPatch::JCC: {
+            relocation_cerr << "\t\t\t Generating CFPatch::JCC from "
+                            << hex << gen.currAddr() << " to " << buf->predictedAddr(targetLabel) << dec << endl;            
+            if (!insnCodeGen::modifyJcc(buf->predictedAddr(targetLabel), *ugly_insn, gen)) {
+               cerr << "Failed to modify conditional jump" << endl;
+               return false;
+            }
+            return true;            
+         }
+         case CFPatch::Call: {
+            if (!insnCodeGen::modifyCall(buf->predictedAddr(targetLabel), *ugly_insn, gen)) {
+               cerr << "Failed to modify call" << endl;
+               return false;
+            }
+            return true;
+         }
+         case CFPatch::Data: {
+           // According to the comments in the aarch64 implementation
+           // This is for PC-relative call, and should only be applicable to x86_64,
+           // Even though it specifies ADR instruction which exists in ARM as well
+           assert(0 && "Trying to apply patch for PC-relative call for AMD GPU");
+         }
+      }
+   }
+   else {
+      switch(type) {
+         case CFPatch::Jump:
+            insnCodeGen::generateBranch(gen, gen.currAddr(), buf->predictedAddr(targetLabel));
+            break;
+         case CFPatch::Call:
+            insnCodeGen::generateCall(gen, gen.currAddr(), buf->predictedAddr(targetLabel));
+            break;
+         default:
+            assert(0);
+      }
+   }
+   
+
     return true;
 }
 

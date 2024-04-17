@@ -37,7 +37,7 @@
 #include "dyninstAPI/src/inst-amdgpu.h"
 #include "dyninstAPI/src/emit-amdgpu.h"
 #include "dyninstAPI/src/function.h"
-
+PC_RELATIVE_BR_t PC_RELATIVE_BR;
 // "Casting" methods. We use a "base + offset" model, but often need to
 // turn that into "current instruction pointer".
 codeBuf_t *insnCodeGen::insnPtr(codeGen &gen) {
@@ -89,9 +89,7 @@ void insnCodeGen::generateTrap(codeGen &gen) {
 }
 
 void insnCodeGen::generateBranch(codeGen &gen, long disp, bool link) {
-    if (labs(disp) > MAX_BRANCH_OFFSET) {
-        fprintf(stderr, "ABS OFF: 0x%lx, MAX: 0x%lx\n",
-                (unsigned long)labs(disp), (unsigned long) MAX_BRANCH_OFFSET);
+    if (disp < -32768 && disp > 32767) { 
         bperr( "Error: attempted a branch of 0x%lx\n", (unsigned long)disp);
         logLine("a branch too far\n");
         showErrorCallback(52, "Internal error: branch too far");
@@ -100,30 +98,23 @@ void insnCodeGen::generateBranch(codeGen &gen, long disp, bool link) {
     }
 
     instruction insn;
-    INSN_SET(insn, 26, 30, BOp);
-    //Set the displacement immediate
-    INSN_SET(insn, 0, 25, disp >> 2);
-
-    //Bit 31 is set if it's a branch-and-link (essentially, a call), unset if it's just a branch
-    if(link)
-        INSN_SET(insn, 31, 31, 1);
-    else
-        INSN_SET(insn, 31, 31, 0);
-
+    INSN_SET(insn, 23, 31, 0x17f);
+    INSN_SET(insn, 16, 22, 2);
+    INSN_SET(insn, 0, 15, (disp&0xffff));
     insnCodeGen::generate(gen, insn);
 }
 
 void insnCodeGen::generateBranch(codeGen &gen, Dyninst::Address from, Dyninst::Address to, bool link) {
-    long disp = (to - from);
-
-    if (labs(disp) > MAX_BRANCH_OFFSET) {
+    int64_t disp = (to - from - 4 )>>2;
+    // disp is a signed 16 bit immediate 
+    if (disp < -32768 && disp > 32767) 
         generateLongBranch(gen, from, to, link);
-    }else
+    else
         generateBranch(gen, disp, link);
 }
 
 void insnCodeGen::generateCall(codeGen &gen, Dyninst::Address from, Dyninst::Address to) {
-    generateBranch(gen, from, to, true);
+assert(0);  // Should use swappc
 }
 
 void insnCodeGen::generateLongBranch(codeGen &gen,
@@ -131,58 +122,7 @@ void insnCodeGen::generateLongBranch(codeGen &gen,
                                      Dyninst::Address to,
                                      bool isCall) 
 {
-    auto generateBReg = [&isCall, &gen](Dyninst::Register s) -> void
-    {
-        instruction branchInsn;
-        branchInsn.clear();
-
-        //Set bits which are 0 for both BR and BLR
-        INSN_SET(branchInsn, 0, 4, 0);
-        INSN_SET(branchInsn, 10, 15, 0);
-
-        //Set register
-        INSN_SET(branchInsn, 5, 9, s);
-
-        // Set other bits . Basically, these are the opcode bits.
-        // The only difference between BR and BLR is that bit 21 is 1 for BLR.
-        INSN_SET(branchInsn, 16, 31, BRegOp);
-        if(isCall)
-            INSN_SET(branchInsn, 21, 21, 1);
-
-        insnCodeGen::generate(gen, branchInsn);
-    };
-
-    Dyninst::Register scratch = Null_Register;
-
-    if(isCall)
-    {
-        // use Link Dyninst::Register as scratch since it will be overwritten at return
-        scratch = 30;
-        //load disp to r30
-        loadImmIntoReg(gen, scratch, to);
-        //generate call
-        generateBReg(scratch);
-        return;
-    }
-
-    instPoint *point = gen.point();
-    if(point)
-    {
-        registerSpace *rs = registerSpace::actualRegSpace(point);
-        gen.setRegisterSpace(rs);
-
-        scratch = rs->getScratchRegister(gen, true);
-    }
-
-    if (scratch == Null_Register)
-    {
-        //fprintf(stderr, " %s[%d] No registers. Calling generateBranchViaTrap...\n", FILE__, __LINE__);
-        generateBranchViaTrap(gen, from, to, isCall);
-        return;
-    }
-
-    loadImmIntoReg(gen, scratch, to);
-    generateBReg(scratch);
+assert(0); //generateLongBranch not implemented for AMD GPU
 }
 
 void insnCodeGen::generateBranchViaTrap(codeGen &gen, Dyninst::Address from, Dyninst::Address to, bool isCall) {
@@ -676,23 +616,38 @@ assert(0);
 bool insnCodeGen::modifyJump(Dyninst::Address target,
                              NS_amdgpu::instruction &insn,
                              codeGen &gen) {
-    long disp = target - gen.currAddr();
+    if (insn.isPCRelativeBranch())
+        return insnCodeGen::modifyJcc(target,insn,gen);
+    // This should be setpc, swappc 
+    
+    
+    const unsigned char *origInsn = insn.ptr();
+    uint32_t origInsnContent = *(uint32_t*) origInsn;
+    uint32_t s_reg_id = origInsnContent & 0xff;
+    codeBufIndex_t curIndex = gen.getIndex();   
+    // s_mov s_reg_id+1, target.lower_32 bit
+    // s_mov s_reg_id,   target.high_32 bit
+    instruction mov_low_insn; 
+    instruction mov_low_const; 
+    INSN_SET(mov_low_insn, 23, 31, 0x17d);
+    INSN_SET(mov_low_insn, 16, 22, s_reg_id & 0x3f);
+    INSN_SET(mov_low_insn, 8, 15, 1);
+    INSN_SET(mov_low_insn, 0, 7, 0xff);
+    INSN_SET(mov_low_const, 0, 31, target & 0xffffffff);
 
-    if(INSN_GET_ISCALL(insn))
-    {
-        generateBranch(gen, gen.currAddr(), target, INSN_GET_ISCALL(insn));
-        return true;
-    }
+    instruction mov_hi_insn; 
+    instruction mov_hi_const; 
+    INSN_SET(mov_hi_insn, 23, 31, 0x17d);
+    INSN_SET(mov_hi_insn, 16, 22, (s_reg_id+1) & 0x3f);
+    INSN_SET(mov_hi_insn, 8, 15, 1);
+    INSN_SET(mov_hi_insn, 0, 7, 0xff);
+    INSN_SET(mov_hi_const, 0, 31, target>>32);
+    
+    insnCodeGen::generate(gen,mov_hi_const,curIndex);
+    insnCodeGen::generate(gen,mov_hi_insn,curIndex);
+    insnCodeGen::generate(gen,mov_low_const,curIndex);
+    insnCodeGen::generate(gen,mov_low_const,curIndex);
 
-    if (labs(disp) > MAX_BRANCH_OFFSET) {
-        generateBranchViaTrap(gen, gen.currAddr(), target, INSN_GET_ISCALL(insn));
-        return true;
-    }
-
-    generateBranch(gen,
-                   gen.currAddr(),
-                   target,
-                   INSN_GET_ISCALL(insn));
     return true;
 }
 
@@ -707,165 +662,38 @@ bool insnCodeGen::modifyJump(Dyninst::Address target,
 bool insnCodeGen::modifyJcc(Dyninst::Address target,
 			    NS_amdgpu::instruction &insn,
 			    codeGen &gen) {
-    long disp = target - gen.currAddr();
-    auto isTB = insn.isInsnType(COND_BR_t::TB_MASK, COND_BR_t::TB);
+
+    const unsigned char *origInsn = insn.ptr();
+    codeBuf_t *newInsn = (codeBuf_t *)(gen).cur_ptr();
+    Address from = gen.currAddr();
+    printf("from = %lx, targetAddr = %lx bytes = %lx\n",from,target, * ((uint32_t *) origInsn));
+
+    int64_t diff = (target - from - 4 )>>2;
     
-    if(labs(disp) > MAX_CBRANCH_OFFSET ||
-            (isTB && labs(disp) > MAX_TBRANCH_OFFSET))
-    {
-        Dyninst::Address origFrom = gen.currAddr();
+    assert( -32768 <= diff && diff <=  32767);
 
-        /*
-         * A conditional branch of the form:
-         *    b.cond A
-         * C: ...next insn...:
-         * [Note that b.cond could also be cbz, cbnz, tbz or tbnz -- all valid conditional branch instructions]
-         *
-         * Gets converted to:
-         *    b.cond B
-         *    b      C
-         * B: b      A
-         * C: ...next insn...
-         */
-
-        // Store start index of code buffer to later calculate how much the original instruction's will have moved
-        codeBufIndex_t startIdx = gen.getIndex();
-
-        /* Generate the --b.cond B-- instruction. Directly modifying the offset 
-         * bits of the instruction passed since other bits are to remain the same anyway.
-           B will be 4 bytes from the next instruction. (it will get multiplied by 4 by the CPU) */
-        instruction newInsn(insn);
-        if(insn.isInsnType(COND_BR_t::TB_MASK, COND_BR_t::TB))
-            INSN_SET(newInsn, 5, 18, 0x1);
-        else
-            INSN_SET(newInsn, 5, 23, 0x1);
-        generate(gen, newInsn);
-
-        /* Generate the --b C-- instruction. C will be 4 bytes from the next 
-         * instruction, hence offset for this instruction is set to 1.
-          (it will get multiplied by 4 by the CPU) */
-        newInsn.clear();
-        INSN_SET(newInsn, 0, 25, 0x1);
-        INSN_SET(newInsn, 26, 31, 0x05);
-        generate(gen, newInsn);
-
-        /* Generate the final --b A-- instruction.
-         * The 'from' address to be passed in to generateBranch is now several
-         * bytes (8 actually, but I'm not hardcoding this) ahead of the original 'from' address.
-         * So adjust it accordingly.*/
-        codeBufIndex_t curIdx = gen.getIndex();
-        Dyninst::Address newFrom = origFrom + (unsigned)(curIdx - startIdx);
-        insnCodeGen::generateBranch(gen, newFrom, target);
-    } 
-    else
-    {
-        instruction condBranchInsn(insn);
-
-        // Set the displacement immediate
-        if(isTB)
-            INSN_SET(condBranchInsn, 5, 18, disp >> 2);
-        else
-            INSN_SET(condBranchInsn, 5, 23, disp >> 2);
-
-        generate(gen, condBranchInsn);
-    }
-
+    uint32_t origInsnContent = *(uint32_t*) origInsn;
+    uint32_t newInsnContent = (origInsnContent & 0xffff0000) | (diff & 0xffff);
+    append_memory_as(newInsn, static_cast<uint32_t>(newInsnContent));
+    gen.update(newInsn);
     return true;
 }
 
 bool insnCodeGen::modifyCall(Dyninst::Address target,
                              NS_amdgpu::instruction &insn,
                              codeGen &gen) {
-    if (insn.isUncondBranch())
+    if (insn.isAbsoluteBranch())
         return modifyJump(target, insn, gen);
     else
         return modifyJcc(target, insn, gen);
 }
 
+// Seems to be PC-relateive load/mo
 bool insnCodeGen::modifyData(Dyninst::Address target,
         NS_amdgpu::instruction &insn,
         codeGen &gen) 
 {
-    int raw = insn.asInt();
-    bool isneg = false;
-
-    if (target < gen.currAddr())
-        isneg = true;
-
-    if (((raw >> 24) & 0x1F) == 0x10) {
-        Dyninst::Address offset;
-        if((static_cast<uint32_t>(raw) >> 31) & 0x1) {
-            target &= 0xFFFFF000;
-            Dyninst::Address cur = gen.currAddr() & 0xFFFFF000;
-            offset = isneg ? (cur - target) : (target - cur);
-            offset >>= 12;
-        } else {
-            Dyninst::Address cur = gen.currAddr();
-            offset = isneg ? (cur - target) : (target - cur);
-        }
-        signed long imm = isneg ? -((signed long)offset) : offset;
-
-        //If offset is within +/- 1 MB, modify the instruction (ADR/ADRP) with the new offset
-        if (offset <= (1 << 20)) {
-            instruction newInsn(insn);
-            INSN_SET(newInsn, 5, 23, ((imm >> 2) & 0x7FFFF));
-            INSN_SET(newInsn, 29, 30, (imm & 0x3));
-            generate(gen, newInsn);
-        }
-        //Else, generate move instructions to move the value to the same register
-        else {
-            //Dyninst::Register rd = raw & 0x1F;
-            //loadImmIntoReg(gen, rd, target);
-            instruction newInsn;
-            instruction newInsn2;
-            newInsn.clear();
-            signed long page_rel = ((long)(target >> 12)) - ((long)(gen.currAddr() >> 12));
-            signed long off = target & 0xFFFF;
-            INSN_SET(newInsn, 0, 4, raw & 0x1F);
-            INSN_SET(newInsn, 5, 23, ((page_rel >> 2) & 0x7FFFF));
-            INSN_SET(newInsn, 24, 28, 0x10);
-            INSN_SET(newInsn, 29, 30, (page_rel & 0x3));
-            INSN_SET(newInsn, 31, 31, 1);
-            generate(gen, newInsn);
-            newInsn2.clear();
-            INSN_SET(newInsn2, 0, 4, raw & 0x1F);
-            INSN_SET(newInsn2, 5, 9, raw & 0x1F);
-            INSN_SET(newInsn2, 10, 21, off);
-            INSN_SET(newInsn2, 22, 31, 0x244);
-            generate(gen , newInsn2);
-
-        }
-    } else if (((raw >> 24) & 0x3F) == 0x18 || ((raw >> 24) & 0x3F) == 0x1C) {
-        Dyninst::Address offset = !isneg ? (target - gen.currAddr()) : (gen.currAddr() - target);
-        //If offset is within +/- 1 MB, modify the instruction (LDR/LDRSW) with the new offset
-        if (offset <= (1 << 20)) {
-            instruction newInsn(insn);
-
-            isneg ? (offset += 4) : (offset -= 4);
-            signed long imm = isneg ? -(offset >> 2) : (offset >> 2);
-            INSN_SET(newInsn, 5, 23, (imm & 0x7FFFF));
-
-            generate(gen, newInsn);
-        }
-        //If it's larger than |1MB|, move target to register and generate LDR
-        else {
-            // Get scratch register
-            Dyninst::Register scratch = gen.rs()->getScratchRegister(gen, true);
-            if(scratch == Null_Register)
-                assert(!"No scratch register available to load the target \
-                        address into for a PC-relative data access using LDR/LDRSW!");
-
-            // Load the target address into scratch register
-            loadImmIntoReg(gen, scratch, target);
-
-            // Generate LDR(immediate) to load into r the the content of [scratch]
-            Dyninst::Register r = raw & 0x1F;
-            generateMemAccess(gen, Load, r, scratch, 0, 8, Offset);
-        }
-    } else {
-        assert(!"Got an instruction other than ADR/ADRP/LDR(literal)/LDRSW(literal) in PC-relative data access!");
-    }
-
+    assert(0);
     return true;
 }
 

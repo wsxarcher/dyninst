@@ -36,6 +36,9 @@ namespace NS_amdgpu {
 ATOMIC_t ATOMIC;
 UNCOND_BR_t UNCOND_BR;
 COND_BR_t COND_BR;
+ABSOLUTE_BR_t ABSOLUTE_BR;
+PC_RELATIVE_BR_t PC_RELATIVE_BR;
+
 
 unsigned int swapBytesIfNeeded(unsigned int i)
 {
@@ -69,6 +72,7 @@ instruction *instruction::copy() const {
 }
 
 unsigned instruction::getTargetReg() const {
+    assert(0);
     if( isBranchReg() ){
         // for this instruction, the reg contains the target address directly.
         return getBranchTargetReg();
@@ -107,24 +111,60 @@ void instruction::setInstruction(unsigned char *ptr, Dyninst::Address) {
 }
 
 bool instruction::isBranchReg() const{
+    assert(0);
     return CHECK_INST(UNCOND_BR.REG );
 }
 
 bool instruction::isUncondBranch() const {
-    if( CHECK_INST(UNCOND_BR.IMM ) == true
-        || CHECK_INST(UNCOND_BR.REG ) == true
-      )
+    if( CHECK_INST(UNCOND_BR.S_BRANCH) == true
+        || CHECK_INST(UNCOND_BR.S_SETPC_B64) == true
+        || CHECK_INST(UNCOND_BR.S_SWAPPC_B64) == true
+        )
         return true;
 
     return false;
 }
 
-bool instruction::isCondBranch() const {
-    if( CHECK_INST(COND_BR.CB) == true ||
-        CHECK_INST(COND_BR.BR) == true ||
-        CHECK_INST(COND_BR.TB) == true )
+bool instruction::isPCRelativeBranch() const {
+    if( 
+        CHECK_INST(PC_RELATIVE_BR.S_BRANCH) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_SCC0) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_SCC1) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_VCCZ) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_VCCNZ) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_EXECZ) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_EXECNZ) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_CDBGSYS) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_CDBGUSER) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_CDBGSYS_OR_USER) == true ||
+        CHECK_INST(PC_RELATIVE_BR.S_CBRANCH_CDBGSYS_AND_USER) == true
+        )
         return true;
+    return false;
+}
 
+bool instruction::isAbsoluteBranch() const {
+    if( 
+        CHECK_INST(ABSOLUTE_BR.S_SETPC_B64) == true ||
+        CHECK_INST(ABSOLUTE_BR.S_SWAPPC_B64) == true
+        )
+        return true;
+    return false;
+}
+
+bool instruction::isCondBranch() const {
+    if( CHECK_INST(COND_BR.S_CBRANCH_SCC0) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_SCC1) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_VCCZ) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_VCCNZ) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_EXECZ) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_EXECNZ) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_CDBGSYS) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_CDBGUSER) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_CDBGSYS_OR_USER) == true ||
+        CHECK_INST(COND_BR.S_CBRANCH_CDBGSYS_AND_USER) == true
+        )
+        return true;
     return false;
 }
 
@@ -180,6 +220,7 @@ bool instruction::isThunk() const {
 }
 
 unsigned instruction::getBranchTargetReg() const{
+    assert(0);
     // keep sure this instruction is uncond b reg.
     assert( isUncondBranch() );
     unsigned regNum;
@@ -197,25 +238,11 @@ unsigned instruction::getBranchTargetReg() const{
 }
 
 Dyninst::Address instruction::getBranchOffset() const {
-    if (isUncondBranch()) {
-        if( CHECK_INST(UNCOND_BR.IMM) ){
-            return signExtend(GET_OFFSET32(UNCOND_BR.IMM), 26+2 );
-        }
-        if( CHECK_INST(UNCOND_BR.REG) ){
-            // branch reg doesn't return offset.
-            assert(0);
-        }
+    if (isAbsoluteBranch()){
+        assert(0);
     }
-    else if (isCondBranch()) {
-        if( CHECK_INST(COND_BR.CB) ){
-            return signExtend(GET_OFFSET32(COND_BR.CB),19+2 );
-        }
-        if( CHECK_INST(COND_BR.TB) ){
-            return signExtend(GET_OFFSET32(COND_BR.TB),14+2 );
-        }
-        if( CHECK_INST(COND_BR.BR) ){
-            return signExtend(GET_OFFSET32(COND_BR.BR),19+2 );
-        }
+    else if (isPCRelativeBranch()) {
+        return signExtend(GET_OFFSET32(PC_RELATIVE_BR.S_BRANCH),16+2);
     }
     assert(0); //never goes here.
     return 0;

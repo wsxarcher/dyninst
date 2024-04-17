@@ -142,6 +142,16 @@ public:
     static insn_mask REG       =(0xd6000000);
     static insn_mask REG_OFFSET_MASK   =(0x000001e0);
     static insn_mask REG_OFFSHIFT   =5;
+
+    static insn_mask S_BRANCH_MASK  =(0xffff0000);
+    static insn_mask S_BRANCH       =(0xbf820000);
+
+    static insn_mask S_SETPC_B64_MASK  =(0xff80ff00);
+    static insn_mask S_SETPC_B64       =(0xbe801d00);
+
+    static insn_mask S_SWAPPC_B64_MASK  =(0xff80ff00);
+    static insn_mask S_SWAPPC_B64       =(0xbe801e00);
+
 };
 
 
@@ -162,6 +172,118 @@ public:
     static insn_mask CB_OFFSHIFT = 4;
     static insn_mask TB_OFFSHIFT = 4;
     static insn_mask BR_OFFSHIFT = 4;
+
+    static insn_mask S_BRANCH_MASK  =(0xffff0000);
+    static insn_mask S_BRANCH       =(0xbf820000);
+
+
+    static insn_mask S_CBRANCH_SCC0_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_SCC0                   =(0xbf840000);
+    static insn_mask S_CBRANCH_SCC1_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_SCC1                   =(0xbf850000);
+    static insn_mask S_CBRANCH_VCCZ_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_VCCZ                   =(0xbf860000);
+    static insn_mask S_CBRANCH_VCCNZ_MASK             =(0xffff0000);
+    static insn_mask S_CBRANCH_VCCNZ                  =(0xbf870000);
+    static insn_mask S_CBRANCH_EXECZ_MASK             =(0xffff0000);
+    static insn_mask S_CBRANCH_EXECZ                  =(0xbf880000);
+    static insn_mask S_CBRANCH_EXECNZ_MASK            =(0xffff0000);
+    static insn_mask S_CBRANCH_EXECNZ                 =(0xbf890000);
+    static insn_mask S_CBRANCH_CDBGSYS_MASK           =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS                =(0xbf970000);
+    static insn_mask S_CBRANCH_CDBGUSER_MASK          =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGUSER               =(0xbf980000);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_MASK   =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER        =(0xbf990000);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_MASK  =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER       =(0xbf9a0000);
+    
+    static insn_mask S_CBRANCH_SCC0_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_SCC1_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_VCCZ_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_VCCNZ_OFFSET_MASK             =(0x0000ffff);
+    static insn_mask S_CBRANCH_EXECZ_OFFSET_MASK             =(0x0000ffff);
+    static insn_mask S_CBRANCH_EXECNZ_OFFSET_MASK            =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_OFFSET_MASK           =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGUSER_OFFSET_MASK          =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_OFFSET_MASK   =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_OFFSET_MASK  =(0x0000ffff);
+
+    static insn_mask S_CBRANCH_SCC0_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_SCC1_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_VCCZ_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_VCCNZ_OFFSHIFT             =0;
+    static insn_mask S_CBRANCH_EXECZ_OFFSHIFT             =0;
+    static insn_mask S_CBRANCH_EXECNZ_OFFSHIFT            =0;
+    static insn_mask S_CBRANCH_CDBGSYS_OFFSHIFT           =0;
+    static insn_mask S_CBRANCH_CDBGUSER_OFFSHIFT          =0;
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_OFFSHIFT   =0;
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_OFFSHIFT  =0;
+};
+
+class ABSOLUTE_BR_t {
+public:
+    static insn_mask S_SETPC_B64_MASK  =(0xff80ff00);
+    static insn_mask S_SETPC_B64       =(0xbe801d00);
+
+    static insn_mask S_SWAPPC_B64_MASK  =(0xff80ff00);
+    static insn_mask S_SWAPPC_B64       =(0xbe801e00);
+};
+
+
+
+class PC_RELATIVE_BR_t {
+public:
+    static insn_mask S_BRANCH_MASK  =(0xffff0000);
+    static insn_mask S_BRANCH       =(0xbf820000);
+
+    static insn_mask S_CBRANCH_SCC0_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_SCC0                   =(0xbf840000);
+    static insn_mask S_CBRANCH_SCC1_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_SCC1                   =(0xbf850000);
+    static insn_mask S_CBRANCH_VCCZ_MASK              =(0xffff0000);
+    static insn_mask S_CBRANCH_VCCZ                   =(0xbf860000);
+    static insn_mask S_CBRANCH_VCCNZ_MASK             =(0xffff0000);
+    static insn_mask S_CBRANCH_VCCNZ                  =(0xbf870000);
+    static insn_mask S_CBRANCH_EXECZ_MASK             =(0xffff0000);
+    static insn_mask S_CBRANCH_EXECZ                  =(0xbf880000);
+    static insn_mask S_CBRANCH_EXECNZ_MASK            =(0xffff0000);
+    static insn_mask S_CBRANCH_EXECNZ                 =(0xbf890000);
+    static insn_mask S_CBRANCH_CDBGSYS_MASK           =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS                =(0xbf970000);
+    static insn_mask S_CBRANCH_CDBGUSER_MASK          =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGUSER               =(0xbf980000);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_MASK   =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER        =(0xbf990000);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_MASK  =(0xffff0000);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER       =(0xbf9a0000);
+    
+
+
+    static insn_mask S_BRANCH_OFFSET_MASK                    =(0x0000ffff);
+    static insn_mask S_CBRANCH_SCC0_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_SCC1_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_VCCZ_OFFSET_MASK              =(0x0000ffff);
+    static insn_mask S_CBRANCH_VCCNZ_OFFSET_MASK             =(0x0000ffff);
+    static insn_mask S_CBRANCH_EXECZ_OFFSET_MASK             =(0x0000ffff);
+    static insn_mask S_CBRANCH_EXECNZ_OFFSET_MASK            =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_OFFSET_MASK           =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGUSER_OFFSET_MASK          =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_OFFSET_MASK   =(0x0000ffff);
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_OFFSET_MASK  =(0x0000ffff);
+
+
+    static insn_mask S_BRANCH_OFFSHIFT                    =0;
+    static insn_mask S_CBRANCH_SCC0_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_SCC1_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_VCCZ_OFFSHIFT              =0;
+    static insn_mask S_CBRANCH_VCCNZ_OFFSHIFT             =0;
+    static insn_mask S_CBRANCH_EXECZ_OFFSHIFT             =0;
+    static insn_mask S_CBRANCH_EXECNZ_OFFSHIFT            =0;
+    static insn_mask S_CBRANCH_CDBGSYS_OFFSHIFT           =0;
+    static insn_mask S_CBRANCH_CDBGUSER_OFFSHIFT          =0;
+    static insn_mask S_CBRANCH_CDBGSYS_OR_USER_OFFSHIFT   =0;
+    static insn_mask S_CBRANCH_CDBGSYS_AND_USER_OFFSHIFT  =0;
 };
 
 typedef union {
@@ -279,6 +401,9 @@ class COMMON_EXPORT instruction {
     bool isCondBranch() const;
     bool isUncondBranch() const;
     bool isThunk() const;
+
+    bool isPCRelativeBranch() const;
+    bool isAbsoluteBranch() const;
 
 
   	bool isCleaningRet() const {return false; }
