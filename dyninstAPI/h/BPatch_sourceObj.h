@@ -31,8 +31,8 @@
 #ifndef _BPatch_sourceObj_h_
 #define _BPatch_sourceObj_h_
 
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
+#include "dyninst_visibility.h"
 
 class BPatch_type;
 class BPatch_variableExpr;
@@ -64,7 +64,7 @@ typedef enum BPatch_sourceType {
 } BPatch_sourceType;
 
 
-class BPATCH_DLL_EXPORT BPatch_sourceObj {
+class DYNINST_EXPORT BPatch_sourceObj {
  public:
     virtual ~BPatch_sourceObj() { }
 

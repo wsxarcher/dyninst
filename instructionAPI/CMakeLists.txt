@@ -9,6 +9,7 @@ set(_sources
     src/Operation.C
     src/Operand.C
     src/Register.C
+    src/MultiRegister.C
     src/Ternary.C
     src/Expression.C
     src/BinaryFunction.C
@@ -34,6 +35,8 @@ set(_sources
     src/AMDGPU/gfx940/amdgpu_gfx940_decoder_impl.C
     src/AMDGPU/gfx940/InstructionDecoder-amdgpu-gfx940.C
     src/InstructionDecoderImpl.C
+    src/syscalls.C
+    src/interrupts.C
     src/x86/decoder.C
     src/x86/mnemonic-xlat.C
     src/x86/register-xlat.C)
@@ -51,6 +54,7 @@ set(_public_headers
     h/Operand.h
     h/Operation_impl.h
     h/Register.h
+    h/MultiRegister.h
     h/Result.h
     h/Ternary.h
     h/Visitor.h)
@@ -64,9 +68,12 @@ set(_private_headers
     src/InstructionDecoder-aarch64.h
     src/InstructionDecoderImpl.h
     src/InstructionDecoder-power.h
+    h/syscalls.h
+    h/interrupts.h
     src/x86/decoder.h
     src/x86/mnemonic-xlat.h
-    src/x86/register-xlat.h)
+    src/x86/register-xlat.h
+    src/InstructionDecoder-x86.h)
 
 set(instructionDecoderPowerExtraFlags "")
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")

@@ -32,7 +32,6 @@
 #define _BPatch_h_
 
 #include <stdio.h>
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 #include "BPatch_Set.h"
 #include "BPatch_thread.h"
@@ -115,7 +114,7 @@ typedef struct {
 } BPatch_remoteHost;
 // --------------------------------------------------------------------
 
-class BPATCH_DLL_EXPORT BPatch {
+class DYNINST_EXPORT BPatch {
     friend class BPatch_thread;
     friend class BPatch_process;
     friend class BPatch_point;

@@ -30,11 +30,11 @@
 
 #ifndef _BPatch_module_h_
 #define _BPatch_module_h_
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 #include "BPatch_sourceObj.h"
 #include "BPatch_enums.h"
 #include "dyntypes.h"
+#include "dyninst_visibility.h"
 #include <stddef.h>
 #include <vector>
 #include <map>
@@ -61,7 +61,7 @@ namespace Dyninst {
    namespace SymtabAPI {
       class Module;
        struct AddressRange;
-      BPATCH_DLL_EXPORT Module *convert(const BPatch_module *);
+      DYNINST_EXPORT Module *convert(const BPatch_module *);
    }
    namespace PatchAPI {
 	   class PatchFunction;
@@ -72,7 +72,7 @@ namespace Dyninst {
 extern BPatch_builtInTypeCollection * builtInTypes;
 
 
-class BPATCH_DLL_EXPORT BPatch_module: public BPatch_sourceObj{
+class DYNINST_EXPORT BPatch_module: public BPatch_sourceObj{
 
     friend class BPatch_function;
     friend class BPatch_flowGraph;
@@ -262,9 +262,6 @@ private:
     // Parse wrapper
     bool parseTypesIfNecessary();
     BPatch_typeCollection *moduleTypes;
-
-    // We understand the type information in DWARF format.
-    void parseDwarfTypes();
 
    BPatch_funcMap func_map;
    BPatch_instpMap instp_map;

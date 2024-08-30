@@ -32,7 +32,6 @@
 #define _BPatch_addressSpace_h_
 
 #include "boost/shared_ptr.hpp"
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 #include "BPatch_enums.h"
 #include "BPatch_instruction.h" // for register type
@@ -62,7 +61,7 @@ namespace Dyninst {
     typedef boost::shared_ptr<PatchMgr> PatchMgrPtr;
     typedef boost::shared_ptr<DynAddrSpace> DynAddrSpacePtr;
     typedef boost::shared_ptr<Instance> InstancePtr;
-    BPATCH_DLL_EXPORT PatchMgrPtr convert(const BPatch_addressSpace *);
+    DYNINST_EXPORT PatchMgrPtr convert(const BPatch_addressSpace *);
   }
   namespace SymtabAPI {
     class Symbol;
@@ -90,7 +89,7 @@ typedef enum{
 } processType;
 
 
-class BPATCH_DLL_EXPORT BPatchSnippetHandle {
+class DYNINST_EXPORT BPatchSnippetHandle {
   friend class BPatch_point;
   friend class BPatch_image;
   friend class BPatch_process;
@@ -142,7 +141,7 @@ class BPATCH_DLL_EXPORT BPatchSnippetHandle {
   
 };
 
-class BPATCH_DLL_EXPORT BPatch_addressSpace {
+class DYNINST_EXPORT BPatch_addressSpace {
   friend class BPatch;
   friend class BPatch_image;
   friend class BPatch_function;

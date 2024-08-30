@@ -32,7 +32,6 @@
 #define _BPatch_process_h_
 
 #include "BPatch_snippet.h"
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 // #include "BPatch_image.h"
 #include "BPatch_addressSpace.h"
@@ -131,7 +130,7 @@ class OneTimeCodeInfo {
 /*
  * Represents a process
  */
-class BPATCH_DLL_EXPORT BPatch_process : public BPatch_addressSpace {
+class DYNINST_EXPORT BPatch_process : public BPatch_addressSpace {
   friend class BPatch;
   friend class BPatch_image;
   friend class BPatch_function;
@@ -155,8 +154,6 @@ class BPATCH_DLL_EXPORT BPatch_process : public BPatch_addressSpace {
  protected:
   void getAS(std::vector<AddressSpace *> &as);
 
- public:
-  void PDSEP_updateObservedCostAddr(unsigned long a);
  private:
 
   //References to lower level objects
@@ -460,9 +457,6 @@ class BPATCH_DLL_EXPORT BPatch_process : public BPatch_addressSpace {
   // Various system calls can still be used by the debuggee to recognize that 
   // it is being debugged, so this is not a complete solution.  
   bool hideDebugger();
-#if 0
-  void  printDefensiveStats();
-#endif
 
   // BPatch_process::loadLibrary
   //

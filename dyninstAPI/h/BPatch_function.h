@@ -36,7 +36,6 @@
 #include <string>
 #include <vector>
 #include "Annotatable.h"
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 #include "BPatch_Set.h"
 #include "BPatch_enums.h"
@@ -45,6 +44,7 @@
 #include "BPatch_memoryAccess_NP.h"
 #include "StackMod.h"
 #include "dyntypes.h"
+#include "dyninst_visibility.h"
 
 class func_instance;
 
@@ -61,18 +61,18 @@ class BPatch_function;
 namespace Dyninst {
   namespace ParseAPI {
     class Function;
-     BPATCH_DLL_EXPORT Function *convert(const BPatch_function *);
+     DYNINST_EXPORT Function *convert(const BPatch_function *);
   }
   namespace PatchAPI {
      class PatchFunction;
-     BPATCH_DLL_EXPORT PatchFunction *convert(const BPatch_function *);
+     DYNINST_EXPORT PatchFunction *convert(const BPatch_function *);
   }
 }
 
 
 
 
-class BPATCH_DLL_EXPORT BPatch_function : 
+class DYNINST_EXPORT BPatch_function : 
    public BPatch_sourceObj, 
    public Dyninst::AnnotatableSparse
 {
@@ -151,9 +151,6 @@ public:
 
     void addParam(Dyninst::SymtabAPI::localVar *lvar);
 
-//    void addParam(const char * _name, BPatch_type *_type, int _linenum,
-//                  long _frameOffset, int _reg = -1,
-//                  BPatch_storageClass _sc = BPatch_storageFrameOffset);
     void fixupUnknown(BPatch_module *);
     
 

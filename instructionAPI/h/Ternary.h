@@ -49,7 +49,7 @@ namespace Dyninst
     ///
 
 
-    class INSTRUCTION_EXPORT TernaryAST : public Expression
+    class DYNINST_EXPORT TernaryAST : public Expression
     {
     public:
       /// \brief A type definition for a reference-counted pointer to a %TernaryAST.
@@ -78,8 +78,6 @@ namespace Dyninst
       virtual std::string format(Architecture, formatStyle how = defaultStyle) const;
       /// The \c format method on a %TernaryAST object returns the name associated with its ID.
       virtual std::string format(formatStyle how = defaultStyle) const;
-
-      static TernaryAST makePC(Dyninst::Architecture arch);
 
       /// We define a partial order by the order of its children
       bool operator<(const TernaryAST& rhs) const;

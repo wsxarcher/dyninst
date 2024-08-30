@@ -29,17 +29,27 @@ jobs:
            cd external-tests
            mkdir build
            cd build
-           cmake .. -DDyninst_DIR=/dyninst/install/lib/cmake/Dyninst
+           cmake .. -DDyninst_ROOT=/dyninst/install
            cmake --build .
            cp parseAPI/simpleParser /
 
       - name: Run parser
         run: |
+           set -e
            cd /
-           export LD_LIBRARY_PATH=/dyninst/install/lib:$LD_LIBRARY_PATH
+           for d in /dyninst/install/lib*; do
+             if [ -n "LD_LIBRARY_PATH" ]; then
+               LD_LIBRARY_PATH="$d:$LD_LIBRARY_PATH"
+             else
+               LD_LIBRARY_PATH="$d"
+             fi
+           done
+           export LD_LIBRARY_PATH
            for dir in /usr/lib /usr/lib64; do                       \
-              for file in $(find $dir -type f -name "*.so.*"); do   \
-                echo $file;                                         \
-                ./simpleParser $file;                               \
-              done                                                  \
-            done
+             for file in $(find $dir -type f -name "*.so.*"); do    \
+               if ! expr "$file" : ".*\.hmac" >/dev/null 2>&1; then \
+                 echo $file;                                        \
+                 ./simpleParser $file;                              \
+               fi                                                   \
+             done                                                   \
+           done

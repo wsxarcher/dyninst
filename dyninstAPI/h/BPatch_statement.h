@@ -31,12 +31,11 @@
 #ifndef _BPATCH_STATEMENT_H_
 #define _BPATCH_STATEMENT_H_
 
-#include "BPatch_dll.h"
 #include "Statement.h"
 class BPatch_module;
 
 
-class BPATCH_DLL_EXPORT BPatch_statement
+class DYNINST_EXPORT BPatch_statement
 {
   friend class BPatch_module;
   friend class BPatch_image;

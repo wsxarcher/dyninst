@@ -38,12 +38,13 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <set>
-#include "BPatch_dll.h"
 #include "BPatch_Vector.h"
 #include <iostream>
 #include <algorithm>
 #include <iterator>
 #include <functional>
+#include "dyninst_visibility.h"
+
 #if !defined(DO_INLINE_P)
 #define DO_INLINE_P
 #endif
@@ -69,7 +70,7 @@ struct comparison {
 };
 
 template<class Key, class Compare = comparison<Key> >
-class BPATCH_DLL_EXPORT BPatch_Set {
+class DYNINST_EXPORT BPatch_Set {
    friend class BPatch_basicBlock;
    friend class BPatch_function;
    friend class BPatch_flowGraph;

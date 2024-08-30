@@ -27,7 +27,7 @@ jobs:
         sudo apt install -y -qq --no-install-recommends build-essential gcc g++ gfortran m4 cmake autoconf python3 git unzip openmpi-bin libopenmpi-dev
         git clone --depth=1 --branch=develop https://github.com/spack/spack
         spack/bin/spack compiler find
-        spack/bin/spack external find --not-buildable cmake python git m4 openmpi gmake
+        spack/bin/spack external find --not-buildable cmake git m4 openmpi gmake
         spack/bin/spack install ${{ matrix.consumer }} ^dyninst@master
 
   systemtap:
@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-         os: ['ubuntu-20.04']
+         os: ['ubuntu-23.10']
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/dyninst/amd64/${{ matrix.os }}:latest
@@ -48,20 +48,21 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y git python3 libjson-c-dev
+          apt install -y git python3 libjson-c-dev m4 autoconf
       - name: Fetch systemtap
         run: |
-          git clone https://sourceware.org/git/systemtap.git
+          git clone --depth=1 https://sourceware.org/git/systemtap.git
       - name: Make symlinks
         run: |
           ln -s /dyninst/install/include /usr/include/dyninst
-          ln -s /dyninst/install/lib /usr/lib64/dyninst
+          ln -s /dyninst/install/lib* /usr/lib64/dyninst
       - name: Build systemtap
         run: |
           cd systemtap
+          autoreconf
           mkdir build
           cd build
-          ../configure --with-dyninst
+          ../configure --with-dyninst --without-python3-probes
           make -j2
 
   llnl-stat:

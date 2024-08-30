@@ -28,201 +28,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-
-#if !defined(SYMTAB_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined SYMTAB_LIB
-      #define SYMTAB_EXPORT __declspec(dllexport)
-    #else
-      #define SYMTAB_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define SYMTAB_EXPORT __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(SYMLITE_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined SYMLITE_LIB
-      #define SYMLITE_EXPORT __declspec(dllexport)
-    #else
-      #define SYMLITE_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define SYMLITE_EXPORT __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(DYNELF_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined DYNELF_LIB
-      #define DYNELF_EXPORT __declspec(dllexport)
-    #else
-      #define DYNELF_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define DYNELF_EXPORT __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(DYNDWARF_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined DYNDWARF_LIB
-      #define DYNDWARF_EXPORT __declspec(dllexport)
-    #else
-      #define DYNDWARF_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define DYNDWARF_EXPORT __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(COMMON_EXPORT)
-  #if defined (_MSC_VER)
-    #if defined(COMMON_LIB)
-       #define COMMON_EXPORT __declspec(dllexport)
-    #else
-       #define COMMON_EXPORT __declspec(dllimport)   
-    #endif
-  #else
-    #define COMMON_EXPORT __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(COMMON_TEMPLATE_EXPORT)
-  #if defined (_MSC_VER)
-    #if defined(COMMON_LIB) || defined(INSTRUCTION_LIB) || \
-		defined(SYMTAB_LIB)	|| defined(BPATCH_LIBRARY)
-       #define COMMON_TEMPLATE_EXPORT __declspec(dllexport)
-    #else
-       #define COMMON_TEMPLATE_EXPORT __declspec(dllimport)   
-    #endif
-  #else
-    #define COMMON_TEMPLATE_EXPORT  __attribute__((visibility ("default")))
-  #endif
-#endif
-
-#if !defined(INSTRUCTION_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(INSTRUCTION_LIB)
-      #define INSTRUCTION_EXPORT __declspec(dllexport)
-    #else
-      #define INSTRUCTION_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define INSTRUCTION_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(PARSER_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(PARSER_LIB)
-      #define PARSER_EXPORT __declspec(dllexport)
-    #else
-      #define PARSER_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define PARSER_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(PATCHAPI_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(PATCHAPI_LIB)
-      #define PATCHAPI_EXPORT __declspec(dllexport)
-    #else
-      #define PATCHAPI_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define PATCHAPI_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(DATAFLOW_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(DATAFLOW_LIB)
-      #define DATAFLOW_EXPORT __declspec(dllexport)
-    #else
-      #define DATAFLOW_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define DATAFLOW_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(PC_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(PROCCONTROL_EXPORTS)
-      #define PC_EXPORT __declspec(dllexport)
-    #else
-      #define PC_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define PC_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(SW_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(STACKWALKER_EXPORTS)
-      #define SW_EXPORT __declspec(dllexport)
-    #else
-      #define SW_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define SW_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(INJECTOR_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(INJECTOR_EXPORTS)
-      #define INJECTOR_EXPORT __declspec(dllexport)
-    #else
-      #define INJECTOR_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define INJECTOR_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
-#if !defined(SYMEVAL_EXPORT)
-  #if defined(_MSC_VER)
-    #if defined(SYMEVAL_LIB)
-      #define SYMEVAL_EXPORT __declspec(dllexport)
-    #else
-      #define SYMEVAL_EXPORT __declspec(dllimport)
-    #endif
-  #else
-    #define SYMEVAL_EXPORT __attribute__((visibility ("default")))
-#endif
-#endif
-
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
 #include <string>
 #include "dyntypes.h"
+#include "dyninst_visibility.h"
 
 
 namespace Dyninst {
 
-COMMON_EXPORT unsigned addrHashCommon(const Address &addr);
-COMMON_EXPORT unsigned ptrHash(const void * addr);
-COMMON_EXPORT unsigned ptrHash(void * addr);
+DYNINST_EXPORT unsigned addrHashCommon(const Address &addr);
+DYNINST_EXPORT unsigned ptrHash(const void * addr);
+DYNINST_EXPORT unsigned ptrHash(void * addr);
 
-COMMON_EXPORT unsigned addrHash(const Address &addr);
-COMMON_EXPORT unsigned addrHash4(const Address &addr);
-COMMON_EXPORT unsigned addrHash16(const Address &addr);
+DYNINST_EXPORT unsigned addrHash(const Address &addr);
+DYNINST_EXPORT unsigned addrHash4(const Address &addr);
+DYNINST_EXPORT unsigned addrHash16(const Address &addr);
 
-COMMON_EXPORT unsigned stringhash(const std::string &s);
-COMMON_EXPORT std::string itos(int);
-COMMON_EXPORT std::string utos(unsigned);
+DYNINST_EXPORT unsigned stringhash(const std::string &s);
+DYNINST_EXPORT std::string itos(int);
+DYNINST_EXPORT std::string utos(unsigned);
 
 #define WILDCARD_CHAR '?'
 #define MULTIPLE_WILDCARD_CHAR '*'
 
-COMMON_EXPORT bool wildcardEquiv(const std::string &us, const std::string &them, bool checkCase = false );
+DYNINST_EXPORT bool wildcardEquiv(const std::string &us, const std::string &them, bool checkCase = false );
 
 const char *platform_string();
 }

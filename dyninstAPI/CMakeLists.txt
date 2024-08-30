@@ -14,7 +14,6 @@ set(_public_headers
     h/BPatch_basicBlockLoop.h
     h/BPatch_binaryEdit.h
     h/BPatch_callbacks.h
-    h/BPatch_dll.h
     h/BPatch_edge.h
     h/BPatch_enums.h
     h/BPatch_flowGraph.h
@@ -102,7 +101,6 @@ set(_private_headers
     src/RegisterConversion.h
     src/registerSpace.h
     src/syscallNotification.h
-    src/syscalltrap.h
     src/trapMappings.h
     src/unix.h
     src/util.h)
@@ -299,7 +297,6 @@ dyninst_library(
   dyninstAPI
   PUBLIC_HEADER_FILES ${_public_headers}
   SOURCE_FILES ${_sources}
-  DEFINES BPATCH_DLL_BUILD
   DYNINST_DEPS common instructionAPI stackwalk pcontrol patchAPI parseAPI symtabAPI 
   PUBLIC_DEPS Dyninst::Boost_headers
   PRIVATE_DEPS Dyninst::ElfUtils Threads::Threads

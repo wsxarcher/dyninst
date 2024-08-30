@@ -68,7 +68,7 @@ namespace Dyninst
     /// For example, the %Expression shown in Figure 6 could have its root %Dereference, which interprets the memory being dereferenced
     /// as a unsigned 16-bit integer, replaced with a %Dereference that
     /// interprets the memory being dereferenced as any other type.  The remainder of the %Expression tree would, however, remain unchanged.
-    class INSTRUCTION_EXPORT Dereference : public Expression
+    class DYNINST_EXPORT Dereference : public Expression
     {
 
     public:
@@ -197,19 +197,6 @@ namespace Dyninst
                     retVal << "UNKNOWN SIZE @ ";
                     break;
             }
-#endif
-
-#if 0 /* Which parts of the operand are available? */
-            if(list.base)
-                std::cout << "\tBase:         " << list.base << std::endl;
-            if(list.offset)
-                std::cout << "\tOffset:       " << list.offset << std::endl;
-            if(list.segment)
-                std::cout << "\tSegment:      " << list.segment << std::endl;
-            if(list.scale)
-                std::cout << "\tScale:        " << list.scale << std::endl;
-            if(list.displacement)
-                std::cout << "\tDisplacement: " << list.displacement << std::endl;
 #endif
 
             return ArchSpecificFormatter::getFormatter(arch).formatDeref(addressToDereference->format(arch));

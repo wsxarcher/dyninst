@@ -51,7 +51,7 @@ struct livenessData{
 	bitArray in, out, use, def;
 };
 
-class DATAFLOW_EXPORT LivenessAnalyzer{
+class DYNINST_EXPORT LivenessAnalyzer{
 	std::map<ParseAPI::Block*, livenessData> blockLiveInfo;
 	std::map<ParseAPI::Function*, bool> liveFuncCalculated;
         std::map<ParseAPI::Function*, bitArray> funcRegsDefined;
@@ -77,21 +77,9 @@ public:
 	typedef enum {Before, After} Type;
 	typedef enum {Invalid_Location} ErrorType;
 	LivenessAnalyzer(int w);
+	LivenessAnalyzer(Architecture arch, int w);
 	void analyze(ParseAPI::Function *func);
 
-	template <class OutputIterator>
-	bool query(ParseAPI::Location loc, Type type, OutputIterator outIter){
-		bitArray liveRegs;
-		if (query(loc,type, liveRegs)){
-			for (std::map<MachRegister,int>::const_iterator iter = abi->getIndexMap()->begin(); iter != abi->getIndexMap()->end(); ++iter)
-				if (liveRegs[iter->second]){
-					outIter = iter->first;
-					++outIter;
-				}
-			return true;
-		}
-		return false;
-	}
 	bool query(ParseAPI::Location loc, Type type, const MachRegister &machReg, bool& live);
 	bool query(ParseAPI::Location loc, Type type, bitArray &bitarray);
 

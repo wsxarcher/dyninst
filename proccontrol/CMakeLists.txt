@@ -28,7 +28,6 @@ set(_private_headers
     src/loadLibrary/injector.h
     src/memcache.h
     src/mmapalloc.h
-    src/notify_pipe.h
     src/ppc_process.h
     src/processplat.h
     src/procpool.h
@@ -111,7 +110,6 @@ dyninst_library(
   PUBLIC_HEADER_FILES ${_public_headers}
   PRIVATE_HEADER_FILES ${_private_headers}
   SOURCE_FILES ${_sources}
-  DEFINES PROCCONTROL_EXPORTS
   DYNINST_DEPS common ${SYMREADER}
   PUBLIC_DEPS Dyninst::Boost_headers
   PRIVATE_DEPS ${CMAKE_DL_LIBS} Dyninst::Thread_DB Threads::Threads

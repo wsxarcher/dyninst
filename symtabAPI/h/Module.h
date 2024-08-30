@@ -51,7 +51,7 @@ namespace Dyninst { namespace SymtabAPI {
 
   typedef Dyninst::SimpleInterval<Offset, Module *> ModRange;
 
-  class SYMTAB_EXPORT Module : public LookupInterface {
+  class DYNINST_EXPORT Module : public LookupInterface {
     friend class Symtab;
 
   public:
@@ -180,7 +180,11 @@ namespace Dyninst { namespace SymtabAPI {
   }
 
   template <typename OS> OS &operator<<(OS &os, Module *m) {
-    os << m->fileName() << ": " << m->addr();
+    if (m)  {
+	os << m->fileName() << ": " << m->addr();
+    }  else  {
+	os << "null";
+    }
     return os;
   }
 

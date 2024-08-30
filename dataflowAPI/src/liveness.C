@@ -41,6 +41,8 @@
 #include "dataflowAPI/h/liveness.h"
 #include "dataflowAPI/h/ABI.h"
 #include <boost/bind/bind.hpp>
+#include "instructionAPI/h/syscalls.h"
+#include "instructionAPI/h/interrupts.h"
 
 std::string regs1 = " ttttttttddddddddcccccccmxxxxxxxxxxxxxxxxgf                  rrrrrrrrrrrrrrrrr";
 std::string regs2 = " rrrrrrrrrrrrrrrrrrrrrrrm1111110000000000ssoscgfedrnoditszapci11111100dsbsbdca";
@@ -56,6 +58,11 @@ using namespace Dyninst::InstructionAPI;
 LivenessAnalyzer::LivenessAnalyzer(int w): errorno((ErrorType)-1) {
     width = w;
     abi = ABI::getABI(width);
+}
+
+LivenessAnalyzer::LivenessAnalyzer(Architecture arch, int w): errorno((ErrorType)-1) {
+    width = w;
+    abi = ABI::getABI(arch);
 }
 
 int LivenessAnalyzer::getIndex(MachRegister machReg){
@@ -546,30 +553,9 @@ ReadWriteInfo LivenessAnalyzer::calcRWSets(Instruction curInsn, Block *blk, Addr
     break;
   default:
     {
-      bool isInterrupt = false;
-      bool isSyscall = false;
+      const bool isInterrupt = Dyninst::InstructionAPI::isSoftwareInterrupt(curInsn);
+      const bool isSyscall = Dyninst::InstructionAPI::isSystemCall(curInsn);
 
-
-      if ((curInsn.getOperation().getID() == e_int) ||
-	  (curInsn.getOperation().getID() == e_int3)) {
-	isInterrupt = true;
-      }
-      static RegisterAST::Ptr gs(new RegisterAST(x86::gs));
-      if (((curInsn.getOperation().getID() == e_call) &&
-	   /*(curInsn()->getOperation().isRead(gs))) ||*/
-	   (curInsn.getOperand(0).format(curInsn.getArch()) == "16")) ||
-	  (curInsn.getOperation().getID() == e_syscall) ||
-	  (curInsn.getOperation().getID() == e_int) ||
-	  (curInsn.getOperation().getID() == power_op_sc)) {
-	isSyscall = true;
-      }
-
-      if (curInsn.getOperation().getID() == power_op_svcs) {
-	isSyscall = true;
-      }
-      if (curInsn.getOperation().getID() == aarch64_op_svc) {
-          isSyscall = true;
-      }
       if (isInterrupt || isSyscall) {
 	ret.read |= (abi->getSyscallReadRegisters());
 	ret.written |= (abi->getSyscallWrittenRegisters());

@@ -32,7 +32,6 @@
 #define _StackMod_h_
 
 #include <string>
-#include "BPatch_dll.h"
 #include "stackanalysis.h"
 
 class BPatch_function;
@@ -48,7 +47,7 @@ if(!(X)) { \
     throw(stackmod_exception(#X));\
 }
 
-class BPATCH_DLL_EXPORT StackMod
+class DYNINST_EXPORT StackMod
 {
     public:
         enum MType
@@ -83,7 +82,7 @@ class BPATCH_DLL_EXPORT StackMod
 };
 
 /* Modification to insert stack space at [low, high) */
-class BPATCH_DLL_EXPORT Insert : public StackMod
+class DYNINST_EXPORT Insert : public StackMod
 {
     friend class StackModChecker; 
     public:
@@ -105,7 +104,7 @@ class BPATCH_DLL_EXPORT Insert : public StackMod
 };
 
 /* Modification to remove stack space at [low, high) */
-class BPATCH_DLL_EXPORT Remove : public StackMod
+class DYNINST_EXPORT Remove : public StackMod
 {
     friend class StackModChecker; 
     public:
@@ -128,7 +127,7 @@ class BPATCH_DLL_EXPORT Remove : public StackMod
 
 /* Modification to move stack space from [srcLow, srcHigh)
  * to [destLow, destLow+(srcHigh-srcLow)) */
-class BPATCH_DLL_EXPORT Move : public StackMod
+class DYNINST_EXPORT Move : public StackMod
 {
     public:
         // Constructor
@@ -153,7 +152,7 @@ class BPATCH_DLL_EXPORT Move : public StackMod
 
 /* Modification to insert a stack canary at function entry
  * (and canary verification at function exit(s)) */
-class BPATCH_DLL_EXPORT Canary : public StackMod
+class DYNINST_EXPORT Canary : public StackMod
 {
     public:
         // Constructors
@@ -189,7 +188,7 @@ class BPATCH_DLL_EXPORT Canary : public StackMod
 /* Modification to randomize the locations of the DWARF-specified
  * local variables. This modification has no effect on functions
  * without DWARF information. */
-class BPATCH_DLL_EXPORT Randomize : public StackMod
+class DYNINST_EXPORT Randomize : public StackMod
 {
     public:
         // Constructor

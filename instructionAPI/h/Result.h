@@ -232,7 +232,7 @@ namespace Dyninst
         // machine states.  From this, you may construct abstractions to represent the set of possible results.
         // Alternately, you may use instrumentation to determine the exact machine state at the time an
         // instruction executes, which will allow you to evaluate the %Result of an %Expression in its actual context.
-        class INSTRUCTION_EXPORT Result
+        class DYNINST_EXPORT Result
         {
             public:
                 Result_Value val;
@@ -774,14 +774,62 @@ namespace Dyninst
                             return 0;
                     };
                 }
+                static Result sizeToResult(uint32_t size)
+                {
+                    switch(size)
+                    {
+                        case 1:
+                            return Result(u8);
+                        case 2:
+                            return Result(u16);
+                        case 4:
+                            return Result(u32);
+                        case 6:
+                            return Result(u48);
+                        case 8:
+                            return Result(u64);
+                        case 10:
+                            return Result(dp_float);
+                        case 16:
+                            return Result(dbl128);
+                        case 32:
+                            return Result(m256);
+                        case 64:
+                            return Result(m512);
+                        case 0:
+                            return Result(bit_flag);
+                        default:
+                            assert(!"Result::sizetoResult unexpected machine register size!");
+                            return Result(u8);
+                    }
+                }
+                static Result sizeToMask(uint32_t size)
+                {
+                    switch(size)
+                    {
+                        case 1:
+                            return Result(u8,0xff);
+                        case 2:
+                            return Result(u16,0xffff);
+                        case 4:
+                            return Result(u32,0xffffffff);
+                        case 6:
+                            return Result(u48,0xffffffffffff);
+                        case 8:
+                            return Result(u64,0xffffffffffffffff);
+                       default:
+                            assert(!"Result::sizeToMask unexpected machine register size!");
+                            return Result(u8);
+                    }
+                }
         };
 
-        INSTRUCTION_EXPORT Result operator+(const Result& arg1, const Result& arg2);
-        INSTRUCTION_EXPORT Result operator*(const Result& arg1, const Result& arg2);
-        INSTRUCTION_EXPORT Result operator<<(const Result& arg1, const Result& arg2);
-        INSTRUCTION_EXPORT Result operator>>(const Result& arg1, const Result& arg2);
-        INSTRUCTION_EXPORT Result operator&(const Result& arg1, const Result& arg2);
-        INSTRUCTION_EXPORT Result operator|(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator+(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator*(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator<<(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator>>(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator&(const Result& arg1, const Result& arg2);
+        DYNINST_EXPORT Result operator|(const Result& arg1, const Result& arg2);
 
     }
 }

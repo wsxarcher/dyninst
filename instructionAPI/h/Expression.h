@@ -117,14 +117,17 @@ namespace Dyninst
     /// the state of the registers known and the state of memory
     /// unknown"
     ///
-    class INSTRUCTION_EXPORT Expression : public InstructionAST
+    class DYNINST_EXPORT Expression : public InstructionAST
     {
     public:
       /// \brief A type definition for a reference counted pointer to a %Expression.
       typedef boost::shared_ptr<Expression> Ptr;
     protected:      
       Expression(Result_Type t);
+      Expression(uint32_t total_size);
       Expression(MachRegister r);
+      Expression(MachRegister r, uint32_t len);
+      Expression(std::vector<MachRegister> rs);
     public:
       virtual ~Expression();
       Expression(const Expression&) = default;
@@ -166,13 +169,12 @@ namespace Dyninst
       virtual void getChildren(std::vector<Expression::Ptr>& children) const = 0;
       using InstructionAST::getChildren;
       
-      
     protected:
       virtual bool isFlag() const;
       Result userSetValue;
       
     };
-    class INSTRUCTION_EXPORT DummyExpr : public Expression
+    class DYNINST_EXPORT DummyExpr : public Expression
     {
         public:
             virtual void getChildren(vector<InstructionAST::Ptr>& ) const {}

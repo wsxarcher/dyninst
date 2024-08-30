@@ -50,7 +50,7 @@ namespace Dyninst {
             virtual bool        operandPrintOrderReversed() const;
             virtual ~ArchSpecificFormatter() = default;
             ArchSpecificFormatter& operator=(const ArchSpecificFormatter&) = default;
-            static INSTRUCTION_EXPORT ArchSpecificFormatter& getFormatter(Dyninst::Architecture a);
+            static DYNINST_EXPORT ArchSpecificFormatter& getFormatter(Dyninst::Architecture a);
 
         };
 
@@ -89,6 +89,7 @@ namespace Dyninst {
             // Helper function for formatting consecutive registers that are displayed as a single operand
             // Called when architecture is passed to Instruction.format.
             static std::string formatRegister(MachRegister m_Reg, uint32_t num_elements, unsigned m_Low , unsigned m_High );
+            static std::string formatMultiRegister(MachRegister m_Reg, uint32_t len);
         private:
             std::map<std::string, std::string> binaryFuncModifier;
         };

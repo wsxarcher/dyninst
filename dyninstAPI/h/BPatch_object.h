@@ -36,7 +36,6 @@
 #include <set>
 #include <utility>
 #include "dyntypes.h"
-#include "BPatch_dll.h"
 #include "StackMod.h"
 
 class mapped_object;
@@ -52,20 +51,20 @@ class BPatch_snippet;
 namespace Dyninst { 
    namespace ParseAPI { 
       class CodeObject; 
-      BPATCH_DLL_EXPORT CodeObject *convert(const BPatch_object *);
+      DYNINST_EXPORT CodeObject *convert(const BPatch_object *);
    }
    namespace PatchAPI {
       class PatchObject;
-      BPATCH_DLL_EXPORT PatchObject *convert(const BPatch_object *);
+      DYNINST_EXPORT PatchObject *convert(const BPatch_object *);
    }
    namespace SymtabAPI {
       class Symtab;
-      BPATCH_DLL_EXPORT Symtab *convert(const BPatch_object *);
+      DYNINST_EXPORT Symtab *convert(const BPatch_object *);
    }
 }
 
 
-class BPATCH_DLL_EXPORT BPatch_object {
+class DYNINST_EXPORT BPatch_object {
 
     friend Dyninst::ParseAPI::CodeObject *Dyninst::ParseAPI::convert(const BPatch_object *);
     friend Dyninst::PatchAPI::PatchObject *Dyninst::PatchAPI::convert(const BPatch_object *);
