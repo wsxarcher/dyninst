@@ -985,6 +985,7 @@ BPatch_variableExpr::BPatch_variableExpr(BPatch_addressSpace *in_addSpace,
     type(type_),
     intvar(NULL)
 {
+
   const image_variable* img_var = NULL;
   if(iv)
   {
@@ -996,11 +997,33 @@ BPatch_variableExpr::BPatch_variableExpr(BPatch_addressSpace *in_addSpace,
   size = type_->getSize();
   if(img_var)
   {
+#if defined(arch_amdgpu)
+    std::cout << "default name : " << name << '\n';
+    // The AstOperandNode containing another AstOperandNode that is a constant.
+
+    AstOperandNode::addToTable(name, size);
+    int offset = AstOperandNode::getOffset(name);
+    ast_wrapper =
+          AstNode::operandNode(AstNode::operandType::AddressAsPlaceholderRegAndOffset,
+          AstNode::operandNode(AstNode::operandType::Constant, (void *) offset));
+
+#else
     ast_wrapper = AstNodePtr(AstNode::operandNode(AstNode::operandType::variableValue, img_var));
+#endif
   }
   else
   {
+#if defined(arch_amdgpu)
+    std::cout << "default name : " << name << '\n';
+     // The AstOperandNode containing another AstOperandNode that is a constant.
+    AstOperandNode::addToTable(name, size);
+    int offset = AstOperandNode::getOffset(name);
+    ast_wrapper =
+          AstNode::operandNode(AstNode::operandType::AddressAsPlaceholderRegAndOffset,
+          AstNode::operandNode(AstNode::operandType::Constant, (void *) offset));
+#else
     ast_wrapper = AstNodePtr(AstNode::operandNode(AstNode::operandType::DataAddr, (void*)(NULL)));
+#endif
   }
 
 
@@ -1008,7 +1031,6 @@ BPatch_variableExpr::BPatch_variableExpr(BPatch_addressSpace *in_addSpace,
   ast_wrapper->setType(type_);
 
 }
-
 
 BPatch_variableExpr* BPatch_variableExpr::makeVariableExpr(BPatch_addressSpace* in_addSpace,
                                                  int_variable* v,
