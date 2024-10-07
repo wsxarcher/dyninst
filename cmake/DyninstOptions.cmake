@@ -34,6 +34,8 @@ option(DYNINST_WARNINGS_AS_ERRORS "Treat compilation warnings as errors" OFF)
 
 option(ENABLE_PARSE_API_GRAPHS "Enable Boost Graph wrappers for parseAPI Functions" OFF)
 
+option(DYNINST_ARCH_amdgpu "Special AMDGPU specific build" OFF)
+
 set(DYNINST_LINKER
     ""
     CACHE STRING "The linker to use")
