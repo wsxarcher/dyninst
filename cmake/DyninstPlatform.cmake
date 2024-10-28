@@ -47,7 +47,6 @@ if(DYNINST_OS_Linux OR DYNINST_OS_FreeBSD)
   set(DYNINST_OS_UNIX TRUE)
 endif()
 
-
 if(NOT DYNINST_ARCH_amdgpu)
   if(${_host_arch} STREQUAL "x86_64" OR ${_host_arch} STREQUAL "amd64")
     set(DYNINST_ARCH_x86_64 TRUE)

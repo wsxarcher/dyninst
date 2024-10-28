@@ -108,9 +108,7 @@ set(_private_headers
     src/trapMappings.h
     src/unix.h
     src/util.h
-
-    src/amdgpu-vega-details.h
-    )
+    src/amdgpu-vega-details.h)
 
 set(_sources
     src/addressSpace.C
@@ -197,8 +195,7 @@ set(_sources
     src/Relocation/Widgets/PCWidget.C
     src/Relocation/Widgets/RelDataWidget.C
     src/Relocation/Widgets/StackModWidget.C
-    src/Relocation/patchapi_debug.C
-    )
+    src/Relocation/patchapi_debug.C)
 
 list(FIND DYNINST_PLATFORM_CAPABILITIES "-Dcap_stack_mods" cap_stack_mods_found)
 if(cap_stack_mods_found GREATER -1)
@@ -218,9 +215,7 @@ if(DYNINST_ARCH_amdgpu)
   list(
     APPEND
     _sources
-
     src/ast-amdgpu.C
-
     src/inst-amdgpu.C
     src/emit-amdgpu.C
     src/codegen-amdgpu.C
@@ -229,16 +224,12 @@ if(DYNINST_ARCH_amdgpu)
     src/stackwalk-amdgpu.C
     src/Relocation/Widgets/CFWidget-amdgpu.C
     src/Relocation/Widgets/PCWidget-amdgpu.C
-
-    src/amdgpu-vega-details.cpp
-    )
+    src/amdgpu-vega-details.cpp)
 elseif(DYNINST_ARCH_i386 OR DYNINST_ARCH_x86_64)
   list(
     APPEND
     _sources
-
     src/ast.C
-
     src/RegisterConversion-x86.C
     src/Relocation/Widgets/CFWidget-x86.C
     src/Relocation/Widgets/PCWidget-x86.C
@@ -253,9 +244,7 @@ elseif(DYNINST_ARCH_ppc64le)
   list(
     APPEND
     _sources
-
     src/ast.C
-
     src/inst-power.C
     src/codegen-power.C
     src/parse-power.C
@@ -267,9 +256,7 @@ elseif(DYNINST_ARCH_aarch64)
   list(
     APPEND
     _sources
-
     src/ast.C
-
     src/inst-aarch64.C
     src/emit-aarch64.C
     src/codegen-aarch64.C
