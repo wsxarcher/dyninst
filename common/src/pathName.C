@@ -35,65 +35,40 @@
 #include <cstdlib>
 #include <string>
 
-std::string expand_tilde_pathname(const std::string &dir) {
-#ifdef os_windows
-	// no-op on Windows
-	return dir;
-#else
-   // e.g. convert "~tamches/hello" to "/u/t/a/tamches/hello",
-   // or convert "~/hello" to same.
-   // In the spirit of Tcl_TildeSubst
-   if (dir.length()==0)
-      return dir;
+// Replace unix `~` in a path with $HOME
+static std::string expand_tilde(std::string path_name) {
+  if (path_name.empty() || path_name[0] != '~') {
+    return path_name;
+  }
 
-   const char *dir_cstr = dir.c_str();
-   if (dir_cstr[0] != '~')
-      return dir;
+  char const *home_dir = std::getenv("HOME");
+  if (!home_dir) {
+    return path_name;
+  }
 
-   // Now, there are two possibilities: a tilde by itself (e.g. ~/x/y or ~), or
-   // a tilde followed by a username.
-   if (dir_cstr[1] == '/' || dir_cstr[1] == '\0') {
-      // It's the first case.  We need to find the environment vrble HOME and use it.
-      // It it doesn't exist (but it always does, I think) then I don't know what
-      // to do.
-      char *home_dir = getenv("HOME");
-      if (home_dir == NULL)
-         return dir; // yikes
+  // ~/x -> $HOME/x
+  // NOTE: '/x' is optional
+  if (path_name.length() == 1UL || path_name[1] == '/') {
+    return path_name.replace(0, 1, home_dir);
+  }
 
-      if (home_dir[strlen(home_dir)-1] == '/' && dir_cstr[1] != '\0')
-         return std::string(home_dir) + &dir_cstr[2];
-      else
-         return std::string(home_dir) + &dir_cstr[1];
-   }
+  // ~NAME/foo -> parent($HOME)/NAME/foo
+  // Note: NAME may not be the same as $USER
+  auto const idx_of_slash = path_name.find('/');
+  auto const user_name = path_name.substr(1, idx_of_slash);
 
-   // It's the second case.  We need to find the username.  It starts at
-   // dir_cstr[1] and ends at (but not including) the first '/' or '\0'.
-   std::string userName;
+  // Everything after ~NAME
+  auto trailing_path = path_name.substr(user_name.length()+1);
 
-   const char *ptr = strchr(&dir_cstr[1], '/');
-   if (ptr == NULL)
-      userName = std::string(&dir_cstr[1]);
-   else {
-      char user_name_buffer[200];
-      unsigned user_name_len = ptr - &dir_cstr[1];
+  namespace fs = boost::filesystem;
+  auto parent_path = fs::path(home_dir).parent_path();
+  auto full_path = parent_path / user_name / trailing_path;
+  return full_path.string();
+}
 
-      for (unsigned j=0; j < user_name_len; j++)
-	 user_name_buffer[j] = dir_cstr[1+j];
-
-      user_name_buffer[user_name_len] = '\0';
-      userName = user_name_buffer;
-   }
-
-   struct passwd *pwPtr = getpwnam(userName.c_str());
-   if (pwPtr == NULL) {
-      endpwent();
-      return dir; // something better needed...
-   }
-
-   std::string result = std::string(pwPtr->pw_dir) + (ptr ? ptr : "");
-   endpwent();
-   return result;
-#endif
+std::string extract_pathname_tail(const std::string &path) {
+  boost::filesystem::path p(path);
+  return p.filename().string();
 }
 
 std::string extract_pathname_tail(const std::string &path)
