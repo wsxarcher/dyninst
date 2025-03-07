@@ -17,7 +17,7 @@ int main() {
   }();
 
   if(home.empty()) {
-    std::cerr << "Didn't find 'HOME' in environment\n";
+    std::cerr << "'HOME' not defined in environment\n";
     return EXIT_FAILURE;
   }
 
@@ -30,7 +30,7 @@ int main() {
   }();
 
   if(user.empty()) {
-    std::cerr << "Didn't find 'USER' in environment\n";
+    std::cerr << "'USER' not defined in environment\n";
     return EXIT_FAILURE;
   }
 
