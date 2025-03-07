@@ -84,13 +84,6 @@ std::string resolve_file_path(std::string path) {
 	// Remove all leading and trailing spaces in-place.
 	ba::trim(path);
 
-#ifndef os_windows
-	// On Linux-like OSes, collapse doubled directory separators
-	// similar to POSIX `realpath`. On Windows, '//' is a (possibly)
-	// meaningful separator, so don't change it.
-	ba::replace_all(path, "//", "/");
-#endif
-
 	// If it has a tilde, expand tilde pathname
 	// This is a no-op on Windows
 	if(path.find("~") != std::string::npos) {
