@@ -48,3 +48,5 @@ option(DYNINST_FORCE_RUNPATH "Require the use of RUNPATH instead of compiler's d
        OFF)
 
 option(DYNINST_ENABLE_TESTS "Build tests" OFF)
+
+option(DYNINST_FORCE_CROSS_COMPILE_ARCH "Force CMAKE_HOST_SYSTEM_PROCESSOR to be like CMAKE_SYSTEM_PROCESSOR for cross compilation (Experimental)" OFF)

@@ -36,14 +36,14 @@ find_package(capstone ${_min_version} REQUIRED ${_find_path_args})
 
 if(NOT TARGET Dyninst::Capstone)
   add_library(Dyninst::Capstone INTERFACE IMPORTED)
-  target_link_libraries(Dyninst::Capstone INTERFACE capstone::capstone)
+  target_link_libraries(Dyninst::Capstone INTERFACE capstone::capstone_static)
   target_include_directories(
     Dyninst::Capstone SYSTEM
-    INTERFACE $<TARGET_PROPERTY:capstone::capstone,INTERFACE_INCLUDE_DIRECTORIES>)
+    INTERFACE $<TARGET_PROPERTY:capstone::capstone_static,INTERFACE_INCLUDE_DIRECTORIES>)
 endif()
 
 message(STATUS "Found Capstone ${Capstone_VERSION}")
-get_target_property(_tmp capstone::capstone INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(_tmp capstone::capstone_static INTERFACE_INCLUDE_DIRECTORIES)
 message(STATUS "Capstone include directories: ${_tmp}")
 
 unset(_find_path_args)

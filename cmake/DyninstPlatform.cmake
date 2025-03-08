@@ -9,7 +9,11 @@ if(NOT ${_host_os} IN_LIST _known_oses)
 endif()
 
 # Equivalent to CMAKE_HOST_SYSTEM_PROCESSOR and `uname -m` on Unixes
-cmake_host_system_information(RESULT _host_arch QUERY OS_PLATFORM)
+if (DYNINST_FORCE_CROSS_COMPILE_ARCH)
+  set(_host_arch ${CMAKE_SYSTEM_PROCESSOR} CACHE STRING "Host architecture")
+else()
+  cmake_host_system_information(RESULT _host_arch QUERY OS_PLATFORM)
+endif()
 
 set(_32bit_x86_arches "i386" "i686")
 set(_64bit_x86_arches "x86_64" "amd64")
