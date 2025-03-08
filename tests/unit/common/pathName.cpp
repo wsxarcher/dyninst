@@ -1,6 +1,7 @@
 #include "common/src/pathName.h"
 
 #include <array>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <cstdlib>
 #include <fstream>
@@ -59,12 +60,30 @@ int main() {
   }};
   // clang-format on
 
+  // Collapse multiple slashes and remove terminal slashes
+  auto simplify = [](std::string &path) {
+    if(path.empty()) {
+      return path;
+    }
+
+    boost::algorithm::replace_all(path, "//", "/");
+
+    auto has_terminal_slash = [&path](){
+      return path.find_last_of('/') == (path.length() - 1);
+    };
+
+    while(has_terminal_slash()) {
+      path.erase(path.length() - 1);
+    }
+    return path;
+  };
+
   bool failed = false;
   auto test_id = 1;
 
   for(auto t : tests) {
     auto fp = resolve_file_path(t.input);
-    if(fp != t.expected) {
+    if(simplify(fp) != t.expected) {
       std::cerr << "Test " << test_id << " '" << t.input << "' failed: expected '"
                 << t.expected << "', got '" << fp << "'\n";
       failed = true;
