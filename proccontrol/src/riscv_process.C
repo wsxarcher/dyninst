@@ -315,6 +315,7 @@ async_ret_t riscv_process::plat_needsEmulatedSingleStep(int_thread *thr, std::ve
 
         if( atomicStore(insn) && sequenceStarted ) {
             foundEnd = true;
+            addrResult.push_back(pc + insn.size());
         }
 
         // For control flow instructions, assume target is outside atomic instruction sequence
@@ -329,7 +330,7 @@ async_ret_t riscv_process::plat_needsEmulatedSingleStep(int_thread *thr, std::ve
  
              unsigned regNum = insn.getTargetReg();
 
-             pthrd_printf("DEBUG: find Branch Reg instruction, target reg is %d\n", regNum);
+             pthrd_printf("DEBUG: find Branch Reg instruction, target reg is %u\n", regNum);
  
              reg_response::ptr Response = reg_response::createRegResponse();
              bool result = thr->getRegister(MachRegister::getArchReg(regNum, Arch_riscv64), Response);
@@ -364,8 +365,6 @@ async_ret_t riscv_process::plat_needsEmulatedSingleStep(int_thread *thr, std::ve
         addrResult.clear();
         pthrd_printf("Failed to find end of atomic instruction sequence\n");
         return aret_error;
-    }else{
-        pthrd_printf("No atomic instruction sequence found, safe to single step\n");
     }
 
     return aret_success;
