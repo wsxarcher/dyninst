@@ -172,6 +172,14 @@ public:
     static insn_mask BRANCH_MASK  = 0x0000007f;
     static insn_mask BRANCH_INSNS = 0x00000063;
 
+    static insn_mask BRANCH_TYPE_MASK = 0x00007000;
+    static insn_mask BEQ_INSN    = 0x00000000 | BRANCH_INSNS;
+    static insn_mask BNE_INSN    = 0x00001000 | BRANCH_INSNS;
+    static insn_mask BLT_INSN    = 0x00004000 | BRANCH_INSNS;
+    static insn_mask BGE_INSN    = 0x00005000 | BRANCH_INSNS;
+    static insn_mask BLTU_INSN   = 0x00006000 | BRANCH_INSNS;
+    static insn_mask BGEU_INSN   = 0x00007000 | BRANCH_INSNS;
+
     static insn_mask BRANCH_REG1_MASK  = 0x000f8000;
     static insn_mask BRANCH_REG1_SHIFT = 15;
 

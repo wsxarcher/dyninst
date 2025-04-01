@@ -1500,6 +1500,8 @@ bool linux_thread::plat_cont()
          return false;
       }
 
+      std::vector<pair<Dyninst::Address, int_breakpoint*>> bps;
+
       for (vector<Address>::iterator j = addrs.begin(); j != addrs.end(); j++) {
          Address addr = *j;
          pthrd_printf("Installing emulated non-user single-step breakpoint for %d/%d at %lx\n",
@@ -1508,10 +1510,23 @@ bool linux_thread::plat_cont()
          bp->setThreadSpecific(thr->thread());
          bp->setOneTimeBreakpoint(true);
          llproc()->addBreakpoint(addr, bp);
+         bps.push_back(make_pair(addr, bp));
       }
 
       pthrd_printf("Calling PTRACE_CONT to emulate PTRACE_SINGLESTEP on %d with signal %d\n", lwp, tmpSignal);
       result = do_ptrace((pt_req) PTRACE_CONT, lwp, NULL, data);
+
+      // In case of conditional branching 2 breakpoints are installed, one for the next instruction
+      // and one where the branch goes to. Remove both breakpoints to avoid keeping the not hit breakpoint alive.
+      for (vector<pair<Dyninst::Address, int_breakpoint*> >::iterator j = bps.begin(); j != bps.end(); j++) {
+         int_breakpoint* bp = j->second;
+         Dyninst::Address addr = j->first;
+         pthrd_printf("Removing emulated non-user single-step breakpoint for %d/%d at %lx\n",
+            llproc()->getPid(), thr->getLWP(), addr);
+         set<response::ptr> resps;
+         llproc()->removeBreakpoint(addr, bp, resps);
+      }
+
       #else
       pthrd_printf("Calling PTRACE_SINGLESTEP on %d with signal %d\n", lwp, tmpSignal);
       result = do_ptrace((pt_req) PTRACE_SINGLESTEP, lwp, NULL, data);
