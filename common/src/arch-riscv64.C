@@ -176,9 +176,27 @@ unsigned instruction::spaceToRelocate() {
                 return 0;
 }
 
-bool instruction::getUsedRegs(std::vector<int> &) {
-                assert(0);
-                return 0;
+bool instruction::getUsedRegs(std::vector<int> &regs) {
+    if (isCondBranch()) {
+        if (isCompressed()) {
+            unsigned int rs2 = COND_BR.CBRANCH_REG_OFFSET + ((insn_.craw & COND_BR.CBRANCH_REG_MASK) >> COND_BR.CBRANCH_REG_SHIFT);
+            regs.push_back(rs2);
+        } else {
+            unsigned int rs1 = (insn_.raw & COND_BR.BRANCH_REG1_MASK) >> COND_BR.BRANCH_REG1_SHIFT;
+            unsigned int rs2 = (insn_.raw & COND_BR.BRANCH_REG2_MASK) >> COND_BR.BRANCH_REG2_SHIFT;
+            regs.push_back(rs1);
+            regs.push_back(rs2);
+        }
+        return true;
+    } else if (isBranchReg()) {
+        regs.push_back(getBranchTargetReg());
+        return true;
+    } else if (isUncondBranch()) {
+        return true;
+    }
+   
+    assert(0);
+    return 0;
 }
 
 // A thunk is a "get PC" operation. We consider
@@ -221,21 +239,24 @@ Dyninst::Address instruction::getBranchOffset() const {
             offset |= ((imm >>  2) & 0x1) << 2;
             offset |= ((imm >>  1) & 0x1) << 1;
             offset |= ((imm >>  0) & 0x1) << 5;
+            // TODO sign extend
         }
         // jalr
         else if (isBranchReg()) {
-            offset = (insn_.craw & UNCOND_BR.JALR_IMM_MASK) >> UNCOND_BR.JALR_IMM_SHIFT;
+            offset = (insn_.raw & UNCOND_BR.JALR_IMM_MASK) >> UNCOND_BR.JALR_IMM_SHIFT;
+            // TODO sign extend
         }
         // jal
         else {
-            Dyninst::Address imm = (insn_.craw & UNCOND_BR.JAL_IMM_MASK) >> UNCOND_BR.JAL_IMM_SHIFT;
+            Dyninst::Address imm = (insn_.raw & UNCOND_BR.JAL_IMM_MASK) >> UNCOND_BR.JAL_IMM_SHIFT;
             offset |= ((imm >> 19) &   0x1) << 20;
             offset |= ((imm >>  9) & 0x1ff) <<  1;
             offset |= ((imm >>  8) &   0x1) << 11;
             offset |= ((imm >>  0) &  0xff) << 12;
+            // TODO sign extend
         }
     }
-    else if (isUncondBranch()) {
+    else if (isCondBranch()) {
         // c.beqz, c.bnez
         if (is_compressed) {
             Dyninst::Address imm = (insn_.craw & COND_BR.CBRANCH_IMM_MASK);
@@ -244,14 +265,16 @@ Dyninst::Address instruction::getBranchOffset() const {
             offset |= ((imm >>  5) &  0x3) << 6;
             offset |= ((imm >>  3) &  0x3) << 1;
             offset |= ((imm >>  2) &  0x1) << 5;
+            // TODO sign extend
         }
         // beq, bne, blt, bge, bltu, bgeu
         else {
-            Dyninst::Address imm = (insn_.craw & COND_BR.BRANCH_IMM_MASK);
+            Dyninst::Address imm = (insn_.raw & COND_BR.BRANCH_IMM_MASK);
             offset |= ((imm >> 31) &  0x1) << 12;
             offset |= ((imm >> 25) & 0x3f) <<  5;
             offset |= ((imm >>  8) &  0xf) <<  1;
             offset |= ((imm >>  7) &  0x1) << 11;
+            // TODO sign extend
         }
     }
     return offset;

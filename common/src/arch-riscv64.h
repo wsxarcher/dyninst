@@ -172,6 +172,12 @@ public:
     static insn_mask BRANCH_MASK  = 0x0000007f;
     static insn_mask BRANCH_INSNS = 0x00000063;
 
+    static insn_mask BRANCH_REG1_MASK  = 0x000f8000;
+    static insn_mask BRANCH_REG1_SHIFT = 15;
+
+    static insn_mask BRANCH_REG2_MASK  = 0x1f00000;
+    static insn_mask BRANCH_REG2_SHIFT = 20;
+
     static insn_mask BRANCH_IMM_MASK = 0xfe000f00;
 
     static cinsn_mask CBRANCH_MASK = 0xe003;
@@ -179,6 +185,9 @@ public:
     static cinsn_mask CBNEZ_INSN   = 0xe001;
 
     static cinsn_mask CBRANCH_IMM_MASK = 0x1c7c;
+    static cinsn_mask CBRANCH_REG_MASK = 0x0380;
+    static cinsn_mask CBRANCH_REG_SHIFT = 7;
+    static cinsn_mask CBRANCH_REG_OFFSET = 8;
 };
 
 typedef union {
