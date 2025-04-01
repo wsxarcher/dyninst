@@ -46,15 +46,15 @@ unsigned int swapBytesIfNeeded(unsigned int i)
 
 // i = signed int value to be extended
 // pos = the total length of signed value to be extended
-int instruction::signExtend(unsigned int i, unsigned int pos)
+signed long instruction::signExtend(unsigned long i, unsigned int pos)
 {
-    int ret;
-    if (((i >> (--pos)) & 0x1) == 0x1) {
-        ret = i |  (~0u << pos);
+    signed long ret;
+    if (((i >> (pos - 1)) & 0x1) == 0x1) {
+        ret = i | (~0UL << (pos - 1));
     } else {
-        ret = i & ~(~0u << pos);
+        ret = i & ~(~0UL << (pos - 1));
     }
-        return ret;
+    return ret;
 }
 
 instructUnion &instruction::swapBytes(instructUnion &i)
@@ -121,7 +121,7 @@ bool instruction::isBranchOffset() const{
         return true;
     }
     else if (is_compressed) {
-        unsigned short code = insn_.craw & UNCOND_BR.CJR_INSN_MASK;
+        unsigned short code = insn_.craw & UNCOND_BR.CJ_INSN_MASK;
         return code == UNCOND_BR.CJ_INSN || code == UNCOND_BR.CJAL_INSN;
     } else {
         unsigned int code = insn_.raw & UNCOND_BR.J_INSN_MASK;
@@ -131,9 +131,11 @@ bool instruction::isBranchOffset() const{
 
 bool instruction::isUncondBranch() const {
     if (is_compressed) {
-        unsigned short code = insn_.craw & UNCOND_BR.CJ_INSN_MASK;
-        return code == UNCOND_BR.CJ_INSN || code == UNCOND_BR.CJAL_INSN
-                || code == UNCOND_BR.CJR_INSN || code == UNCOND_BR.CJALR_INSN;
+        unsigned short code1 = insn_.craw & UNCOND_BR.CJ_INSN_MASK;
+        unsigned short code2 = insn_.craw & UNCOND_BR.CJR_INSN_MASK;
+
+        return code1 == UNCOND_BR.CJ_INSN || code1 == UNCOND_BR.CJAL_INSN
+                || code2 == UNCOND_BR.CJR_INSN || code2 == UNCOND_BR.CJALR_INSN;
     } else {
         unsigned int code = insn_.raw & UNCOND_BR.J_INSN_MASK;
         return code == UNCOND_BR.JAL_INSN || code == UNCOND_BR.JALR_INSN;
@@ -220,14 +222,14 @@ unsigned instruction::getBranchTargetReg() const{
     }
 }
 
-Dyninst::Address instruction::getBranchOffset() const {
+signed long instruction::getBranchOffset() const {
     assert( isBranchOffset() );
     Dyninst::Address offset = 0;
+    signed long result = 0;
     if (isUncondBranch()) {
         // c.j, c.jal
         if (is_compressed) {
-            Dyninst::Address imm = (insn_.craw & UNCOND_BR.JALR_IMM_MASK) >> UNCOND_BR.JALR_IMM_SHIFT;
-            // TODO refactor
+            Dyninst::Address imm = (insn_.craw & UNCOND_BR.CJ_IMM_MASK) >> UNCOND_BR.CJ_IMM_SHIFT;
             offset |= ((imm >> 10) & 0x1) << 11;
             offset |= ((imm >>  9) & 0x1) << 4;
             offset |= ((imm >>  8) & 0x1) << 9;
@@ -239,21 +241,21 @@ Dyninst::Address instruction::getBranchOffset() const {
             offset |= ((imm >>  2) & 0x1) << 2;
             offset |= ((imm >>  1) & 0x1) << 1;
             offset |= ((imm >>  0) & 0x1) << 5;
-            // TODO sign extend
+            result = signExtend(offset, 12);
         }
         // jalr
         else if (isBranchReg()) {
             offset = (insn_.raw & UNCOND_BR.JALR_IMM_MASK) >> UNCOND_BR.JALR_IMM_SHIFT;
-            // TODO sign extend
+            result = signExtend(offset, 12);
         }
         // jal
         else {
             Dyninst::Address imm = (insn_.raw & UNCOND_BR.JAL_IMM_MASK) >> UNCOND_BR.JAL_IMM_SHIFT;
-            offset |= ((imm >> 19) &   0x1) << 20;
-            offset |= ((imm >>  9) & 0x1ff) <<  1;
-            offset |= ((imm >>  8) &   0x1) << 11;
-            offset |= ((imm >>  0) &  0xff) << 12;
-            // TODO sign extend
+            offset |= ((imm >> 19) &  0x1) << 20;
+            offset |= ((imm >> 9) & 0x3ff) <<  1;
+            offset |= ((imm >> 8) &   0x1) << 11;
+            offset |= ((imm >> 0) &  0xff) << 12;
+            result = signExtend(offset, 21);
         }
     }
     else if (isCondBranch()) {
@@ -265,7 +267,7 @@ Dyninst::Address instruction::getBranchOffset() const {
             offset |= ((imm >>  5) &  0x3) << 6;
             offset |= ((imm >>  3) &  0x3) << 1;
             offset |= ((imm >>  2) &  0x1) << 5;
-            // TODO sign extend
+            result = signExtend(offset, 9);
         }
         // beq, bne, blt, bge, bltu, bgeu
         else {
@@ -274,10 +276,10 @@ Dyninst::Address instruction::getBranchOffset() const {
             offset |= ((imm >> 25) & 0x3f) <<  5;
             offset |= ((imm >>  8) &  0xf) <<  1;
             offset |= ((imm >>  7) &  0x1) << 11;
-            // TODO sign extend
+            result = signExtend(offset, 13);
         }
     }
-    return offset;
+    return result;
 }
 
 unsigned instruction::opcode() const {

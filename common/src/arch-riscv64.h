@@ -186,7 +186,7 @@ public:
     static insn_mask BRANCH_REG2_MASK  = 0x1f00000;
     static insn_mask BRANCH_REG2_SHIFT = 20;
 
-    static insn_mask BRANCH_IMM_MASK = 0xfe000f00;
+    static insn_mask BRANCH_IMM_MASK = 0xfe000f80;
 
     static cinsn_mask CBRANCH_MASK = 0xe003;
     static cinsn_mask CBEQZ_INSN   = 0xc001;
@@ -278,12 +278,12 @@ class DYNINST_EXPORT instruction {
 
 
     // To solve host/target endian mismatches
-    static int signExtend(unsigned int i, unsigned int pos);
+    static signed long signExtend(unsigned long i, unsigned int pos);
     static instructUnion &swapBytes(instructUnion &i);
 
     unsigned size() { return is_compressed ? 2 : 4; }
 
-    Dyninst::Address getBranchOffset() const;
+    signed long getBranchOffset() const;
     Dyninst::Address getBranchTargetAddress() const;
     void setBranchOffset(Dyninst::Address newOffset);
 

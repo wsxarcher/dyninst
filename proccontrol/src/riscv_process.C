@@ -347,9 +347,9 @@ async_ret_t riscv_process::plat_needsEmulatedSingleStep(int_thread *thr, std::ve
              Address regValue = (Address) Response->getResult();
 
              if (insn.isBranchOffset()) {
-               Dyninst::Address offset = insn.getBranchOffset();
+               signed long offset = insn.getBranchOffset();
                cfTarget = regValue + offset;
-               pthrd_printf("DEBUG: found Branch Reg instruction with offset Imm, target address is 0x%lx + %lu = 0x%lx\n", regValue, offset, cfTarget);
+               pthrd_printf("DEBUG: found Branch Reg instruction with offset Imm, target address is 0x%lx + %ld = 0x%lx\n", regValue, offset, cfTarget);
              } else {
                cfTarget = regValue;
                pthrd_printf("DEBUG: found Branch Reg instruction, target address is 0x%lx\n", cfTarget);
