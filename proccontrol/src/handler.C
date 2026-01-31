@@ -1602,7 +1602,11 @@ Handler::handler_ret_t HandleBreakpointClear::handleEvent(Event::ptr ev)
    if (restore_bp) {
       pthrd_printf("HandleBreakpointClear restoring BP.  Single stepping the process.\n");
       thrd->markClearingBreakpoint(ibp);
+      #if defined(DYNINST_HOST_ARCH_RISCV64)
+      thrd->setSingleStepUserMode(true);
+      #else
       thrd->setSingleStepMode(true);
+      #endif
 
       pthrd_printf("Making stop/continue decisions for handleBreakpointClear when stepping over BP\n");
 
@@ -1666,7 +1670,11 @@ Handler::handler_ret_t HandleBreakpointRestore::handleEvent(Event::ptr ev)
    if (!int_bpc->set_states) {
       pthrd_printf("Restoring breakpoint at %lx for %d/%d\n", bp->getAddr(), proc->getPid(), thrd->getLWP());
       thrd->markClearingBreakpoint(NULL);
+      #if defined(DYNINST_HOST_ARCH_RISCV64)
+      thrd->setSingleStepUserMode(false);
+      #else
       thrd->setSingleStepMode(false);
+      #endif
       thrd->getBreakpointResumeState().setState(int_thread::stopped);
       int_bpc->set_states = true;
    }

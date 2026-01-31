@@ -1129,6 +1129,7 @@ public:
    std::set<hw_breakpoint *> hw_breakpoints;
    static std::set<continue_cb_t> continue_cbs;
    CallStackUnwinding *unwinder;
+   int_breakpoint *emulated_ptrace_singlestep_bp;
  public:
    Address addr_fakeSyscallExitBp;
    bool isSet_fakeSyscallExitBp;

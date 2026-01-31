@@ -2908,6 +2908,7 @@ int_thread::int_thread(int_process *p, Dyninst::THR_ID t, Dyninst::LWP l) :
    em_singlestep(NULL),
    user_data(NULL),
    unwinder(NULL),
+   emulated_ptrace_singlestep_bp(NULL),
    addr_fakeSyscallExitBp(0),
    isSet_fakeSyscallExitBp(false)
 {
